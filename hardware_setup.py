@@ -1,4 +1,4 @@
-from drivers.ssd1306.ssd1306 import SSD1306_I2C as SSD
+from drivers.ssd1306 import SSD1306_I2C as SSD
 
 import gc
 from machine import Pin, I2C
@@ -6,7 +6,7 @@ from machine import Pin, I2C
 from lib.gui.core.ugui import Display, Screen
 
 import dht
-from lib.hcsr04 import HCSR04
+from drivers.hcsr04 import HCSR04
 
 
 # ESP32 Pin assignment
