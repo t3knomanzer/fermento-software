@@ -4,12 +4,12 @@
 # Copyright (c) 2021 Peter Hinch
 
 import hardware_setup  # Create a display instance
-from gui.core.ugui import Screen, ssd
+from lib.gui.core.ugui import Screen, ssd
 import lib.gui.fonts.freesans20 as font
-from gui.core.writer import CWriter
+from lib.gui.core.writer import CWriter
 
-from gui.widgets import Menu, CloseButton
-from gui.core.colors import *
+from lib.gui.widgets import Menu, CloseButton
+from lib.gui.core.colors import *
 
 
 class BaseScreen(Screen):

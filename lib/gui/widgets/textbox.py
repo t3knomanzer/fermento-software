@@ -4,28 +4,41 @@
 # Copyright (c) 2020 Peter Hinch
 
 # Usage:
-# from gui.widgets.textbox import Textbox
+# from lib.gui.widgets.textbox import Textbox
 
-from gui.core.ugui import LinearIO
+from lib.gui.core.ugui import LinearIO
 from hardware_setup import ssd  # Display driver for Writer
-from gui.core.writer import Writer
+from lib.gui.core.writer import Writer
 
 from time import ticks_diff, ticks_ms
 import uasyncio as asyncio
 
 # Reason for no tab support in nano-gui/private/reason_for_no_tabs
 
+
 class Textbox(LinearIO):
-    def __init__(self, writer, row, col, width, nlines, *,
-                 bdcolor=None, fgcolor=None,
-                 bgcolor=None, clip=True, active=False):
+    def __init__(
+        self,
+        writer,
+        row,
+        col,
+        width,
+        nlines,
+        *,
+        bdcolor=None,
+        fgcolor=None,
+        bgcolor=None,
+        clip=True,
+        active=False
+    ):
         height = nlines * writer.height
         devht = writer.device.height
         devwd = writer.device.width
         if ((row + height + 2) > devht) or ((col + width + 2) > devwd):
-            raise ValueError('Textbox extends beyond physical screen.')
-        super().__init__(writer, row, col, height, width,
-                         fgcolor, bgcolor, bdcolor, 0, active)
+            raise ValueError("Textbox extends beyond physical screen.")
+        super().__init__(
+            writer, row, col, height, width, fgcolor, bgcolor, bdcolor, 0, active
+        )
         self.nlines = nlines
         self.clip = clip
         self.lines = []
@@ -44,32 +57,32 @@ class Textbox(LinearIO):
                 col = 0  # Column relative to text area
             if n >= len(s):  # End of string
                 if n > ls:
-                    self.lines.append(s[ls :])
+                    self.lines.append(s[ls:])
                 return
             c = s[n]  # Current char
-            if c == '\n':
-                self.lines.append(s[ls : n])
+            if c == "\n":
+                self.lines.append(s[ls:n])
                 newline = True
                 continue  # Line fits window
             col += font.get_ch(c)[2]  # width of current char
             if col > width:
                 if self.clip:
-                    p = s[ls :].find('\n')  # end of 1st line
+                    p = s[ls:].find("\n")  # end of 1st line
                     if p == -1:
-                        self.lines.append(s[ls : n])  # clip, discard all to right
+                        self.lines.append(s[ls:n])  # clip, discard all to right
                         return
-                    self.lines.append(s[ls : n])  # clip, discard to 1st newline
+                    self.lines.append(s[ls:n])  # clip, discard to 1st newline
                     n = p  # n will move to 1st char after newline
-                elif c == ' ':  # Easy word wrap
-                    self.lines.append(s[ls : n])
+                elif c == " ":  # Easy word wrap
+                    self.lines.append(s[ls:n])
                 else:  # Edge splits a word
-                    p = s.rfind(' ', ls, n + 1)
+                    p = s.rfind(" ", ls, n + 1)
                     if p >= 0:  # spacechar in line: wrap at space
-                        assert (p > 0), 'space char in position 0'
-                        self.lines.append(s[ls : p])
+                        assert p > 0, "space char in position 0"
+                        self.lines.append(s[ls:p])
                         n = p
                     else:  # No spacechar: wrap at end
-                        self.lines.append(s[ls : n])
+                        self.lines.append(s[ls:n])
                         n -= 1  # Don't skip current char
                 newline = True
 
@@ -84,7 +97,7 @@ class Textbox(LinearIO):
         ht = wri.height
         wri.setcolor(self.fgcolor, self.bgcolor)
         # Print the first (or last?) lines that fit widget's height
-        #for line in self.lines[-self.nlines : ]:
+        # for line in self.lines[-self.nlines : ]:
         for line in self.lines[self.start : self.start + self.nlines]:
             Writer.set_textpos(ssd, row, col)
             wri.printstring(line)

@@ -7,9 +7,9 @@
 # There is no scaling: declared size of the widget must exactly
 # match the size of the bitmap.
 
-from gui.core.ugui import Widget
-from gui.core.colors import *
-from gui.core.ugui import ssd
+from lib.gui.core.ugui import Widget
+from lib.gui.core.colors import *
+from lib.gui.core.ugui import ssd
 
 
 class BitMap(Widget):

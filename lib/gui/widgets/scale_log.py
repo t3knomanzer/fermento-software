@@ -5,41 +5,60 @@
 
 # A logarithmic Scale which responds to user input
 # Usage:
-# from gui.widgets.scale_log import ScaleLog
+# from lib.gui.widgets.scale_log import ScaleLog
 
 
 import uasyncio as asyncio
 from time import ticks_ms, ticks_diff
 from math import log10
 
-from gui.core.ugui import LinearIO, display
+from lib.gui.core.ugui import LinearIO, display
 from hardware_setup import ssd  # Display driver for Writer
-from gui.core.writer import Writer
-from gui.core.colors import *
+from lib.gui.core.writer import Writer
+from lib.gui.core.colors import *
 
 # Null function
-dolittle = lambda *_ : None
+dolittle = lambda *_: None
 
 
 # Start value is 1.0. User applies scaling to value and ticks callback.
 class ScaleLog(LinearIO):
     encoder_rate = 5
-    def __init__(self, writer, row, col, *,
-                 decades=5, height=0, width=160,
-                 bdcolor=None, fgcolor=None, bgcolor=None,
-                 pointercolor=None, fontcolor=None, prcolor=None,
-                 legendcb=None, tickcb=None,
-                 callback=dolittle, args=[],
-                 value=1.0, delta=0.01, active=False):
+
+    def __init__(
+        self,
+        writer,
+        row,
+        col,
+        *,
+        decades=5,
+        height=0,
+        width=160,
+        bdcolor=None,
+        fgcolor=None,
+        bgcolor=None,
+        pointercolor=None,
+        fontcolor=None,
+        prcolor=None,
+        legendcb=None,
+        tickcb=None,
+        callback=dolittle,
+        args=[],
+        value=1.0,
+        delta=0.01,
+        active=False
+    ):
         # For correct text rendering inside control must explicitly set bgcolor
         bgcolor = BLACK if bgcolor is None else bgcolor
         if decades < 3:
-            raise ValueError('decades must be >= 3')
-        self.mval = 10**decades   # Max value
+            raise ValueError("decades must be >= 3")
+        self.mval = 10**decades  # Max value
         self.tickcb = tickcb
         self.delta = delta  # Min multiplier = 1 + delta
+
         def lcb(f):
-            return '{:<1.0f}'.format(f)
+            return "{:<1.0f}".format(f)
+
         self.legendcb = legendcb if legendcb is not None else lcb
         text_ht = writer.height
         ctrl_ht = 12  # Minimum height for ticks
@@ -48,8 +67,20 @@ class ScaleLog(LinearIO):
             height = min_ht + ctrl_ht  # min workable height
         else:
             ctrl_ht = height - min_ht  # adjust ticks for greater height
-        width &= 0xfffe  # Make divisible by 2: avoid 1 pixel pointer offset
-        super().__init__(writer, row, col, height, width, fgcolor, bgcolor, bdcolor, self._constrain(value), active, prcolor)
+        width &= 0xFFFE  # Make divisible by 2: avoid 1 pixel pointer offset
+        super().__init__(
+            writer,
+            row,
+            col,
+            height,
+            width,
+            fgcolor,
+            bgcolor,
+            bdcolor,
+            self._constrain(value),
+            active,
+            prcolor,
+        )
         super()._set_callbacks(callback, args)
         self.fontcolor = fontcolor if fontcolor is not None else self.fgcolor
 
@@ -73,8 +104,10 @@ class ScaleLog(LinearIO):
         self.callback(self, *self.args)
 
     # Pre calculated log10(x) for x in range(1, 10)
-    def show(self, logs=(0.0, 0.3010, 0.4771, 0.6021, 0.6990, 0.7782, 0.8451, 0.9031, 0.9542)):
-        #start = ticks_ms()
+    def show(
+        self, logs=(0.0, 0.3010, 0.4771, 0.6021, 0.6990, 0.7782, 0.8451, 0.9031, 0.9542)
+    ):
+        # start = ticks_ms()
         x0: int = self.x0  # Internal rectangle occupied by scale and text
         x1: int = self.x1
         y0: int = self.y0
@@ -84,8 +117,10 @@ class ScaleLog(LinearIO):
         wri = self.writer
         if super().show():
             vc = self._value  # Current value, corresponds to centre of display
-            d = int(log10(vc)) - 1  # 10**d is start of a decade guaranteed to be outside display
-            vs = max(10 ** d, 1.0)  # vs: start value of current decade
+            d = (
+                int(log10(vc)) - 1
+            )  # 10**d is start of a decade guaranteed to be outside display
+            vs = max(10**d, 1.0)  # vs: start value of current decade
             txtcolor = GREY if self.greyed_out() else self.fontcolor
             while True:  # For each decade until we run out of space
                 done = True  # Assume completion
@@ -126,13 +161,13 @@ class ScaleLog(LinearIO):
                 if done:
                     break
 
-            display.vline(xc, y0, y1 - y0, self.ptrcolor) # Draw pointer
-            #print(ticks_diff(ticks_ms(), start)) 75-95ms on Pyboard D depending on calbacks
+            display.vline(xc, y0, y1 - y0, self.ptrcolor)  # Draw pointer
+            # print(ticks_diff(ticks_ms(), start)) 75-95ms on Pyboard D depending on calbacks
 
     def _constrain(self, v):
         return min(max(v, 1.0), self.mval)
 
-    def value(self, val=None): # User method to get or set value
+    def value(self, val=None):  # User method to get or set value
         if val is not None:
             v = self._constrain(val)
             if self._value is None or v != self._value:
@@ -141,12 +176,15 @@ class ScaleLog(LinearIO):
                 self.callback(self, *self.args)
         return self._value
 
-
     # Adjust widget's value. Args: button pressed, amount of increment
     def do_adj(self, button, val):
         if isinstance(button, int):  # Using an encoder
-            delta = self.delta * self.encoder_rate * 0.1 if self.precision() else self.delta * self.encoder_rate
-            self.value(self.value() * (1 + delta)**val)
+            delta = (
+                self.delta * self.encoder_rate * 0.1
+                if self.precision()
+                else self.delta * self.encoder_rate
+            )
+            self.value(self.value() * (1 + delta) ** val)
         else:  # val == 1 or -1
             asyncio.create_task(self.btnhan(button, val))
 
@@ -158,7 +196,7 @@ class ScaleLog(LinearIO):
         else:
             delta = self.delta
             maxdelta = 0.64
-        smul= (1 + delta) if up else (1 / (1 + delta))
+        smul = (1 + delta) if up else (1 / (1 + delta))
         self.value(self.value() * smul)
         t = ticks_ms()
         while button():

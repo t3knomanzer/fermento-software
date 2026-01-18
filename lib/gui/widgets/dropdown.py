@@ -6,12 +6,13 @@
 # 13 Sep 24 Support dynamic elements list.
 # 12 Sep 21 Support for scrolling.
 
-from gui.core.ugui import Widget, display, Window, Screen
-from gui.core.colors import *
+from lib.gui.core.ugui import Widget, display, Window, Screen
+from lib.gui.core.colors import *
 
-from gui.widgets.listbox import Listbox
+from lib.gui.widgets.listbox import Listbox
 
 dolittle = lambda *_: None
+
 
 # Next and Prev close the listbox without updating the Dropdown. This is
 # handled by Screen .move bound method
@@ -89,7 +90,9 @@ class Dropdown(Widget):
             width = self.textwidth + 2 + height
         else:
             self.textwidth = width
-        super().__init__(writer, row, col, height, width, fgcolor, bgcolor, bdcolor, value, True)
+        super().__init__(
+            writer, row, col, height, width, fgcolor, bgcolor, bdcolor, value, True
+        )
         self.fontcolor = self.fgcolor if fontcolor is None else fontcolor
         if not self.simple:
             if callback is not dolittle:
@@ -138,7 +141,9 @@ class Dropdown(Widget):
         halflength = (self.height - 8) // 2
         length = halflength * 2
         if length > 0:
-            display.hline(xcentre - halflength, ycentre - halflength, length, self.fgcolor)
+            display.hline(
+                xcentre - halflength, ycentre - halflength, length, self.fgcolor
+            )
             display.line(
                 xcentre - halflength,
                 ycentre - halflength,
@@ -156,7 +161,14 @@ class Dropdown(Widget):
 
     def do_sel(self):  # Select was pushed
         if len(self.els) > 1:
-            args = (self.writer, self.row - 2, self.col - 2, self, self.dlines, self.els)
+            args = (
+                self.writer,
+                self.row - 2,
+                self.col - 2,
+                self,
+                self.dlines,
+                self.els,
+            )
             Screen.change(_ListDialog, args=args)
             display.ipdev.adj_mode(True)  # If in 3-button mode, go into adjust mode
 

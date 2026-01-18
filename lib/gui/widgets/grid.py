@@ -3,11 +3,12 @@
 # Released under the MIT License (MIT). See LICENSE.
 # Copyright (c) 2023 Peter Hinch
 
-from gui.core.ugui import Widget, display
-from gui.core.writer import Writer
-from gui.core.colors import *
-from gui.widgets import Label
+from lib.gui.core.ugui import Widget, display
+from lib.gui.core.writer import Writer
+from lib.gui.core.colors import *
+from lib.gui.widgets import Label
 from .parse2d import do_args
+
 
 # Given a slice and a maximum address return start and stop addresses (or None on error)
 # Step value must be 1, hence does not support start > stop (used with step < 0)
@@ -56,7 +57,9 @@ class Grid(Widget):
         for _ in range(self.nrows):
             for cw in self.cwidth:
                 self.cells.append(
-                    Label(writer, r, c, cw - 4, invert, fgcolor, bgcolor, False, justify)
+                    Label(
+                        writer, r, c, cw - 4, invert, fgcolor, bgcolor, False, justify
+                    )
                 )  # No border
                 c += cw
             r += self.cheight

@@ -3,9 +3,9 @@
 # Released under the MIT License (MIT). See LICENSE.
 # Copyright (c) 2022 Peter Hinch
 from framebuf import FrameBuffer, MONO_HLSB
-from gui.core.ugui import Widget
-from gui.core.colors import *
-from gui.core.ugui import ssd
+from lib.gui.core.ugui import Widget
+from lib.gui.core.colors import *
+from lib.gui.core.ugui import ssd
 from optional_extras.py.uQR import QRCode
 from utime import ticks_diff, ticks_ms
 
@@ -24,7 +24,9 @@ class QRMap(Widget):
     def __init__(self, writer, row, col, version=4, scale=1, *, bdcolor=RED, buf=None):
         self._version = version
         self._scale = scale
-        self._iside = self.len_side(version)  # Dimension of unscaled QR image less border
+        self._iside = self.len_side(
+            version
+        )  # Dimension of unscaled QR image less border
         side = self._iside * scale
         # Widget allows 4 * scale border around each edge
         border = 4 * scale

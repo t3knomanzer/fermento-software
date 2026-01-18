@@ -8,14 +8,14 @@
 import hardware_setup  # Create a display instance
 
 try:
-    from gui.core.tgui import Screen, ssd
+    from lib.gui.core.tgui import Screen, ssd
 except ImportError:  # Running under micro-gui
-    from gui.core.ugui import Screen, ssd
+    from lib.gui.core.ugui import Screen, ssd
 
-from gui.widgets import Label, Button, ButtonList, CloseButton, LED
-from gui.core.writer import CWriter
+from lib.gui.widgets import Label, Button, ButtonList, CloseButton, LED
+from lib.gui.core.writer import CWriter
 import lib.gui.fonts.font10 as font
-from gui.core.colors import *
+from lib.gui.core.colors import *
 import asyncio
 from machine import Pin
 

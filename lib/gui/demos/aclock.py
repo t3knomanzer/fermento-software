@@ -5,18 +5,18 @@
 
 # Initialise hardware and framebuf before importing modules.
 import hardware_setup  # Create a display instance
-from gui.core.ugui import Screen, ssd
-from gui.widgets import Label, Dial, Pointer, CloseButton
+from lib.gui.core.ugui import Screen, ssd
+from lib.gui.widgets import Label, Dial, Pointer, CloseButton
 
 # Now import other modules
 from cmath import rect, pi
 import uasyncio as asyncio
 import time
-from gui.core.writer import CWriter
+from lib.gui.core.writer import CWriter
 
 # Font for CWriter
 import lib.gui.fonts.arial10 as font
-from gui.core.colors import *
+from lib.gui.core.colors import *
 
 
 # Adjust passed Dial and Label instances to show current time and date.

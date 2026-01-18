@@ -4,10 +4,10 @@
 # Copyright (c) 2021 Peter Hinch
 
 import asyncio
-from gui.core.ugui import display, Window, Screen, ssd
-from gui.core.colors import *
-from gui.widgets.label import Label
-from gui.widgets.buttons import Button, CloseButton
+from lib.gui.core.ugui import display, Window, Screen, ssd
+from lib.gui.core.colors import *
+from lib.gui.widgets.label import Label
+from lib.gui.widgets.buttons import Button, CloseButton
 
 dolittle = lambda *_: None
 

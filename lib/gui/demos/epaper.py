@@ -15,17 +15,17 @@
 # Create SSD instance. Must be done first because of RAM use.
 import hardware_setup
 
-from gui.core.ugui import Screen, ssd
-from gui.core.writer import CWriter
+from lib.gui.core.ugui import Screen, ssd
+from lib.gui.core.writer import CWriter
 import lib.gui.fonts.arial10 as arial10  # Font for CWriter
 import lib.gui.fonts.freesans20 as large
 
-from gui.core.colors import *
+from lib.gui.core.colors import *
 
 # Option to leave image in place on exit:
 # ssd.blank_on_exit = False
 # Widgets
-from gui.widgets import (
+from lib.gui.widgets import (
     Label,
     Dial,
     Pointer,
@@ -38,7 +38,7 @@ from gui.widgets import (
     Checkbox,
     LED,
 )
-from gui.widgets.graph import CartesianGraph, Curve
+from lib.gui.widgets.graph import CartesianGraph, Curve
 
 from math import sin, pi
 import cmath

@@ -5,13 +5,13 @@
 
 # Create SSD instance. Must be done first because of RAM use.
 import hardware_setup
-from gui.core.ugui import Screen, ssd
-from gui.core.writer import CWriter
+from lib.gui.core.ugui import Screen, ssd
+from lib.gui.core.writer import CWriter
 import lib.gui.fonts.arial10 as arial10  # Font for CWriter
-from gui.core.colors import *
+from lib.gui.core.colors import *
 
 # Widgets
-from gui.widgets import (
+from lib.gui.widgets import (
     Label,
     Scale,
     ScaleLog,

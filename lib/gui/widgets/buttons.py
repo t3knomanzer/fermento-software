@@ -4,8 +4,8 @@
 # Copyright (c) 2021-2024 Peter Hinch
 
 import uasyncio as asyncio
-from gui.core.ugui import Screen, Widget, display
-from gui.core.colors import *
+from lib.gui.core.ugui import Screen, Widget, display
+from lib.gui.core.colors import *
 
 dolittle = lambda *_: None
 

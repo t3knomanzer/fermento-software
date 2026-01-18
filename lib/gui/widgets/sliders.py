@@ -4,11 +4,11 @@
 # Copyright (c) 2021 Peter Hinch
 
 from micropython import const
-from gui.core.ugui import LinearIO, display
-from gui.core.colors import *
+from lib.gui.core.ugui import LinearIO, display
+from lib.gui.core.colors import *
 
 # Null function
-dolittle = lambda *_ : None
+dolittle = lambda *_: None
 
 # *********** SLIDER CLASSES ***********
 # A slider's text items lie outside its bounding box.
@@ -17,15 +17,47 @@ _SLIDE_DEPTH = const(6)  # Must be divisible by 2
 _TICK_VISIBLE = const(3)  # No. of tick pixels visible either side of slider
 _HALF_SLOT_WIDTH = const(2)  # Width of slot /2
 
+
 class Slider(LinearIO):
-    def __init__(self, writer, row, col, *,
-                 height=100, width=20, divisions=10, legends=None,
-                 fgcolor=None, bgcolor=None, fontcolor=None, bdcolor=None,
-                 slotcolor=None, prcolor=None,
-                 callback=dolittle, args=[], value=0.0, active=True,
-                 min_delta=0.01, max_delta=0.1):
-        width &= 0xfe # ensure divisible by 2
-        super().__init__(writer, row, col, height, width, fgcolor, bgcolor, bdcolor, value, active, prcolor, min_delta, max_delta)
+    def __init__(
+        self,
+        writer,
+        row,
+        col,
+        *,
+        height=100,
+        width=20,
+        divisions=10,
+        legends=None,
+        fgcolor=None,
+        bgcolor=None,
+        fontcolor=None,
+        bdcolor=None,
+        slotcolor=None,
+        prcolor=None,
+        callback=dolittle,
+        args=[],
+        value=0.0,
+        active=True,
+        min_delta=0.01,
+        max_delta=0.1
+    ):
+        width &= 0xFE  # ensure divisible by 2
+        super().__init__(
+            writer,
+            row,
+            col,
+            height,
+            width,
+            fgcolor,
+            bgcolor,
+            bdcolor,
+            value,
+            active,
+            prcolor,
+            min_delta,
+            max_delta,
+        )
         super()._set_callbacks(callback, args)
         self.divisions = divisions
         self.legends = legends
@@ -54,17 +86,19 @@ class Slider(LinearIO):
             x = self.col
             y = self.slot_y0
             # Length of travel of slider
-            slot_len = self.slot_h # Dimensions of slot
+            slot_len = self.slot_h  # Dimensions of slot
             slot_w = 2 * _HALF_SLOT_WIDTH
             if self.divisions > 0:
-                dy = slot_len / (self.divisions) # Tick marks
+                dy = slot_len / (self.divisions)  # Tick marks
                 xs = x + 1
-                xe = x + self.width -1
+                xe = x + self.width - 1
                 for tick in range(self.divisions + 1):
                     ypos = int(y + dy * tick)
                     display.line(xs, ypos, xe, ypos, self.fgcolor)
             # Blank and redraw slot
-            display.fill_rect(self.slot_x0, self.slot_y0, slot_w, slot_len, self.slotcolor)
+            display.fill_rect(
+                self.slot_x0, self.slot_y0, slot_w, slot_len, self.slotcolor
+            )
             display.rect(self.slot_x0, self.slot_y0, slot_w, slot_len, self.fgcolor)
 
             txtcolor = GREY if self.greyed_out() else self.fontcolor
@@ -73,17 +107,25 @@ class Slider(LinearIO):
                 if len(self.legends) <= 1:
                     dy = 0
                 else:
-                    dy = slot_len / (len(self.legends) -1)
-                yl = y + slot_len # Start at bottom
+                    dy = slot_len / (len(self.legends) - 1)
+                yl = y + slot_len  # Start at bottom
                 wri = self.writer
                 fhdelta = wri.height / 2
                 for legend in self.legends:
-                    display.print_left(wri, x + self.width + 4, int(yl - fhdelta),
-                                       legend, txtcolor, self.bgcolor)
+                    display.print_left(
+                        wri,
+                        x + self.width + 4,
+                        int(yl - fhdelta),
+                        legend,
+                        txtcolor,
+                        self.bgcolor,
+                    )
                     yl -= dy
 
             slide_y = round(self.slide_y0 - self._value * slot_len)
-            display.fill_rect(self.slide_x0, slide_y, self.slide_w, _SLIDE_DEPTH, self.fgcolor)
+            display.fill_rect(
+                self.slide_x0, slide_y, self.slide_w, _SLIDE_DEPTH, self.fgcolor
+            )
             self.drawn = True
 
     def color(self, color):
@@ -93,14 +135,45 @@ class Slider(LinearIO):
 
 
 class HorizSlider(LinearIO):
-    def __init__(self, writer, row, col, *,
-                 height=20, width=100, divisions=10, legends=None,
-                 fgcolor=None, bgcolor=None, fontcolor=None, bdcolor=None,
-                 slotcolor=None, prcolor=None,
-                 callback=dolittle, args=[], value=0.0, active=True,
-                 min_delta=0.01, max_delta=0.1):
-        height &= 0xfe # ensure divisible by 2
-        super().__init__(writer, row, col, height, width, fgcolor, bgcolor, bdcolor, value, active, prcolor, min_delta, max_delta)
+    def __init__(
+        self,
+        writer,
+        row,
+        col,
+        *,
+        height=20,
+        width=100,
+        divisions=10,
+        legends=None,
+        fgcolor=None,
+        bgcolor=None,
+        fontcolor=None,
+        bdcolor=None,
+        slotcolor=None,
+        prcolor=None,
+        callback=dolittle,
+        args=[],
+        value=0.0,
+        active=True,
+        min_delta=0.01,
+        max_delta=0.1
+    ):
+        height &= 0xFE  # ensure divisible by 2
+        super().__init__(
+            writer,
+            row,
+            col,
+            height,
+            width,
+            fgcolor,
+            bgcolor,
+            bdcolor,
+            value,
+            active,
+            prcolor,
+            min_delta,
+            max_delta,
+        )
         super()._set_callbacks(callback, args)
         self.divisions = divisions
         self.legends = legends
@@ -128,14 +201,16 @@ class HorizSlider(LinearIO):
             slot_len = self.slot_w  # Slot dimensions
             slot_h = 2 * _HALF_SLOT_WIDTH
             if self.divisions > 0:
-                dx = slot_len / (self.divisions) # Tick marks
+                dx = slot_len / (self.divisions)  # Tick marks
                 ys = y + 1
                 ye = y + self.height - 1
                 for tick in range(self.divisions + 1):
                     xpos = int(x + dx * tick)
                     display.line(xpos, ys, xpos, ye, self.fgcolor)
             # Blank and redraw slot
-            display.fill_rect(self.slot_x0, self.slot_y0, slot_len, slot_h, self.slotcolor)
+            display.fill_rect(
+                self.slot_x0, self.slot_y0, slot_len, slot_h, self.slotcolor
+            )
             display.rect(self.slot_x0, self.slot_y0, slot_len, slot_h, self.fgcolor)
 
             txtcolor = GREY if self.greyed_out() else self.fontcolor
@@ -143,17 +218,25 @@ class HorizSlider(LinearIO):
                 if len(self.legends) <= 1:
                     dx = 0
                 else:
-                    dx = slot_len / (len(self.legends) -1)
+                    dx = slot_len / (len(self.legends) - 1)
                 xl = x
                 wri = self.writer
                 for legend in self.legends:
                     offset = wri.stringlen(legend) / 2
-                    display.print_left(wri, int(xl - offset), y - wri.height - 4,
-                                       legend, txtcolor, self.bgcolor)
+                    display.print_left(
+                        wri,
+                        int(xl - offset),
+                        y - wri.height - 4,
+                        legend,
+                        txtcolor,
+                        self.bgcolor,
+                    )
                     xl += dx
 
             self.slide_x = round(self.col + self._value * slot_len)
-            display.fill_rect(self.slide_x, self.slide_y0, _SLIDE_DEPTH, self.slide_h, self.fgcolor)
+            display.fill_rect(
+                self.slide_x, self.slide_y0, _SLIDE_DEPTH, self.slide_h, self.fgcolor
+            )
             self.drawn = True
 
     def color(self, color):

@@ -3,16 +3,29 @@
 # Released under the MIT License (MIT). See LICENSE.
 # Copyright (c) 2021 Peter Hinch
 
-from gui.core.ugui import display, Window, Screen
-from gui.core.colors import *
-from gui.widgets.label import Label
-from gui.widgets.buttons import Button, CloseButton
+from lib.gui.core.ugui import display, Window, Screen
+from lib.gui.core.colors import *
+from lib.gui.widgets.label import Label
+from lib.gui.widgets.buttons import Button, CloseButton
 
-dolittle = lambda *_ : None
+dolittle = lambda *_: None
+
 
 class DialogBox(Window):
-    def __init__(self, writer, row=20, col=20, *, elements, label=None,
-                 bgcolor=DARKGREEN, buttonwidth=25, closebutton=True, callback=dolittle, args=[]):
+    def __init__(
+        self,
+        writer,
+        row=20,
+        col=20,
+        *,
+        elements,
+        label=None,
+        bgcolor=DARKGREEN,
+        buttonwidth=25,
+        closebutton=True,
+        callback=dolittle,
+        args=[]
+    ):
 
         def back(button, text):  # Callback for normal buttons
             Window.value(text)
@@ -25,29 +38,40 @@ class DialogBox(Window):
 
         height = 80
         spacing = 5
-        buttonwidth = max(max(writer.stringlen(e[0]) for e in elements) + 14, buttonwidth)
+        buttonwidth = max(
+            max(writer.stringlen(e[0]) for e in elements) + 14, buttonwidth
+        )
         buttonheight = max(writer.height, 15)
         nelements = len(elements)
         width = spacing + (buttonwidth + spacing) * nelements
         if label is not None:
             width = max(width, writer.stringlen(label) + 2 * spacing)
-        super().__init__(row, col, height, width, bgcolor = bgcolor)
+        super().__init__(row, col, height, width, bgcolor=bgcolor)
 
-        col = spacing # Coordinates relative to window
+        col = spacing  # Coordinates relative to window
         row = self.height - buttonheight - 10
         gap = 0
         if nelements > 1:
             gap = ((width - 2 * spacing) - nelements * buttonwidth) // (nelements - 1)
         if label is not None:
             r, c = self.locn(10, col)
-            Label(writer, r, c, label, bgcolor = bgcolor)
+            Label(writer, r, c, label, bgcolor=bgcolor)
         for text, color in elements:
-            Button(writer, *self.locn(row, col), height = buttonheight, width = buttonwidth,
-                   textcolor = BLACK, bgcolor = color,
-                   fgcolor = color, bdcolor = color,
-                   text = text, shape = RECTANGLE,
-                   callback = back, args = (text,))
+            Button(
+                writer,
+                *self.locn(row, col),
+                height=buttonheight,
+                width=buttonwidth,
+                textcolor=BLACK,
+                bgcolor=color,
+                fgcolor=color,
+                bdcolor=color,
+                text=text,
+                shape=RECTANGLE,
+                callback=back,
+                args=(text,)
+            )
             col += buttonwidth + gap
 
         if closebutton:
-            CloseButton(writer, callback = backbutton, args = ('Close',))
+            CloseButton(writer, callback=backbutton, args=("Close",))

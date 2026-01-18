@@ -3,13 +3,15 @@
 # Released under the MIT License (MIT). See LICENSE.
 # Copyright (c) 2019-2023 Peter Hinch
 from hardware_setup import SSD
-from gui.core.writer import CWriter
+from lib.gui.core.writer import CWriter
+
 
 # Code can be portable between 4-bit and other drivers by calling create_color
 def create_color(idx, r, g, b):
     return CWriter.create_color(SSD, idx, r, g, b)
 
-if hasattr(SSD, 'lut'):  # Colors defined by LUT
+
+if hasattr(SSD, "lut"):  # Colors defined by LUT
     BLACK = create_color(0, 0, 0, 0)
     GREEN = create_color(1, 0, 255, 0)
     RED = create_color(2, 255, 0, 0)

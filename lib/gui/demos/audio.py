@@ -14,7 +14,7 @@
 # Here for simplicity we assume stereo files ripped from CD's.
 
 import hardware_setup  # Create a display instance
-from gui.core.ugui import Screen, ssd
+from lib.gui.core.ugui import Screen, ssd
 from machine import I2S
 from machine import Pin
 import pyb
@@ -61,13 +61,13 @@ audio_out = I2S(I2S_ID, **config)
 
 # ======= GUI =======
 
-from gui.widgets import Button, CloseButton, HorizSlider, Listbox, Label
-from gui.core.writer import CWriter
+from lib.gui.widgets import Button, CloseButton, HorizSlider, Listbox, Label
+from lib.gui.core.writer import CWriter
 
 # Font for CWriter
 import lib.gui.fonts.arial10 as arial10
 import lib.gui.fonts.icons as icons
-from gui.core.colors import *
+from lib.gui.core.colors import *
 
 import os
 import gc

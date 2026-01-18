@@ -5,9 +5,9 @@
 
 # hardware_setup must be imported before other modules because of RAM use.
 import hardware_setup  # Create a display instance
-from gui.core.ugui import Screen, Window, ssd
+from lib.gui.core.ugui import Screen, Window, ssd
 
-from gui.widgets import (
+from lib.gui.widgets import (
     Button,
     RadioButtons,
     CloseButton,
@@ -16,11 +16,11 @@ from gui.widgets import (
     DialogBox,
     Label,
 )
-from gui.core.writer import CWriter
+from lib.gui.core.writer import CWriter
 
 # Font for CWriter
 import lib.gui.fonts.arial10 as arial10
-from gui.core.colors import *
+from lib.gui.core.colors import *
 
 
 # Note that litcolor is defeated by design, because the callback's action

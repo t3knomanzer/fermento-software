@@ -15,14 +15,20 @@ import math
 import uasyncio as asyncio
 from collections import OrderedDict
 
-from gui.core.writer import Writer, CWriter
-from gui.core.ugui import Screen, ssd
-from gui.widgets.graph import PolarGraph, PolarCurve, CartesianGraph, Curve, TSequence
-from gui.widgets import Label, Button, CloseButton, Listbox
+from lib.gui.core.writer import Writer, CWriter
+from lib.gui.core.ugui import Screen, ssd
+from lib.gui.widgets.graph import (
+    PolarGraph,
+    PolarCurve,
+    CartesianGraph,
+    Curve,
+    TSequence,
+)
+from lib.gui.widgets import Label, Button, CloseButton, Listbox
 
 # Fonts & colors
 import lib.gui.fonts.arial10 as arial10
-from gui.core.colors import *
+from lib.gui.core.colors import *
 
 wri = CWriter(ssd, arial10, GREEN, BLACK, verbose=False)
 

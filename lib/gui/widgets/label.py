@@ -2,9 +2,9 @@
 
 # Released under the MIT License (MIT). See LICENSE.
 # Copyright (c) 2021 Peter Hinch
-from gui.core.ugui import Widget, display
-from gui.core.writer import Writer
-from gui.core.colors import *
+from lib.gui.core.ugui import Widget, display
+from lib.gui.core.writer import Writer
+from lib.gui.core.colors import *
 
 
 # text: str display string int save width

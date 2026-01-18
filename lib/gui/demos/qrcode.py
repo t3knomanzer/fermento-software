@@ -5,15 +5,15 @@
 
 # hardware_setup must be imported before other modules because of RAM use.
 import hardware_setup  # Create a display instance
-from gui.core.ugui import Screen, ssd
-from gui.widgets import Label, Button, CloseButton, QRMap
+from lib.gui.core.ugui import Screen, ssd
+from lib.gui.widgets import Label, Button, CloseButton, QRMap
 
 scale = 2  # Magnification of graphic
 version = 4
 # qr_buf = QRMap.make_buffer(version, scale)
-from gui.core.writer import CWriter
+from lib.gui.core.writer import CWriter
 import lib.gui.fonts.arial10 as arial10
-from gui.core.colors import *
+from lib.gui.core.colors import *
 
 
 class BaseScreen(Screen):

@@ -6,8 +6,8 @@
 # 13 Sep 24 Support dynamic elements list.
 # 12 Sep 21 Support for scrolling.
 
-from gui.core.ugui import Widget, display
-from gui.core.colors import *
+from lib.gui.core.ugui import Widget, display
+from lib.gui.core.colors import *
 
 dolittle = lambda *_: None
 
@@ -67,7 +67,9 @@ class Listbox(Widget):
             raise ValueError("Invalid elements arg.")
 
         # Calculate dimensions
-        self.entry_height, height, self.dlines, tw = self.dimensions(writer, self.els, dlines)
+        self.entry_height, height, self.dlines, tw = self.dimensions(
+            writer, self.els, dlines
+        )
         if width is None:
             width = tw  # Text width
 
@@ -78,7 +80,9 @@ class Listbox(Widget):
         elif value >= self.dlines:  # Must scroll
             value = min(value, len(elements) - 1)
             self.ntop = value - self.dlines + 1
-        super().__init__(writer, row, col, height, width, fgcolor, bgcolor, bdcolor, value, True)
+        super().__init__(
+            writer, row, col, height, width, fgcolor, bgcolor, bdcolor, value, True
+        )
         self.adjustable = True  # Can show adjustable border
         # Windowed Listbox has special CB taking bool: update/leave
         self.cb_args = (True,) if also == Listbox.IN_WIN else args
@@ -124,7 +128,9 @@ class Listbox(Widget):
                     self.writer, x + 2, y + 1, text, self.fontcolor, self.select_color
                 )
             else:
-                display.print_left(self.writer, x + 2, y + 1, text, self.fontcolor, self.bgcolor)
+                display.print_left(
+                    self.writer, x + 2, y + 1, text, self.fontcolor, self.bgcolor
+                )
             y += eh
         # Draw a vertical line to hint at scrolling
         x = self.col + self.width - 2
@@ -189,7 +195,9 @@ class Listbox(Widget):
         if (self.also & Listbox.ON_LEAVE) and self._value != self.ev:
             self.do_sel()
         elif self.also & Listbox.IN_WIN:  # Listbox is sole occupant of a Window:
-            self.cb(self, False)  # Its special CB closes window without changing the value
+            self.cb(
+                self, False
+            )  # Its special CB closes window without changing the value
 
     def despatch(self, _):  # Run the callback specified in elements
         x = self.els[self()]

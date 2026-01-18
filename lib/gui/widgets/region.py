@@ -4,11 +4,12 @@
 # Copyright (c) 2021 Peter Hinch
 
 # Usage:
-# from gui.widgets.tstat import Tstat
+# from lib.gui.widgets.tstat import Tstat
 
-from gui.core.ugui import display
-from gui.core.colors import *
-from gui.widgets.meter import Meter
+from lib.gui.core.ugui import display
+from lib.gui.core.colors import *
+from lib.gui.widgets.meter import Meter
+
 
 class Region:
     # Callback reasons
@@ -26,7 +27,7 @@ class Region:
         tstat.draw = True
         self.tstat = tstat
         if vlo >= vhi:
-            raise ValueError('TStat Region: vlo must be < vhi')
+            raise ValueError("TStat Region: vlo must be < vhi")
         self.vlo = vlo
         self.vhi = vhi
         self.color = color
@@ -35,8 +36,8 @@ class Region:
         v = self.tstat.value()  # Get current value
         self.is_in = vlo <= v <= vhi  # Is initial value in region
         # .wa: was above. Value prior to any entry to region.
-        self.wa = None # None indicates unknown
-        
+        self.wa = None  # None indicates unknown
+
     # Where prior state is unknown because instantiation occurred with a value
     # in the region (.wa is None) we make the assumption that, on exit, it is
     # leaving from the opposite side from purported entry.
@@ -57,7 +58,9 @@ class Region:
                     cb(self, self.T_IA, *args)
                 return
             # Was already in region
-            reason = self.EX_WB_IA if (self.wa is None or not self.wa) else self.EX_WA_IA
+            reason = (
+                self.EX_WB_IA if (self.wa is None or not self.wa) else self.EX_WA_IA
+            )
             cb(self, reason, *args)
         else:  # v is in range
             if self.is_in:
@@ -75,7 +78,7 @@ class Region:
 
     def adjust(self, vlo, vhi):
         if vlo >= vhi:
-            raise ValueError('TStat Region: vlo must be < vhi')
+            raise ValueError("TStat Region: vlo must be < vhi")
         old_vlo = self.vlo
         old_vhi = self.vhi
         self.vlo = vlo

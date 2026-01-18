@@ -4,7 +4,7 @@
 # Copyright (c) 2021 Peter Hinch
 
 from hardware_setup import ssd, display  # Create a display instance
-from gui.core.ugui import Widget
+from lib.gui.core.ugui import Widget
 from cmath import rect, pi
 from micropython import const
 from array import array
@@ -23,7 +23,7 @@ _YMAX = const(1)
 _YMIN = const(-1)
 
 
-class Curve():
+class Curve:
     @staticmethod
     def _outcode(x, y):
         oc = _TOP if y > 1 else 0
@@ -35,7 +35,7 @@ class Curve():
     def __init__(self, graph, color, populate=None, origin=(0, 0), excursion=(1, 1)):
         if not isinstance(self, PolarCurve):  # Check not done in subclass
             if isinstance(graph, PolarGraph) or not isinstance(graph, CartesianGraph):
-                raise ValueError('Curve must use a CartesianGraph instance.')
+                raise ValueError("Curve must use a CartesianGraph instance.")
         self.graph = graph
         self.origin = origin
         self.excursion = excursion
@@ -48,7 +48,7 @@ class Curve():
 
     def _valid(self, populate):
         if not isinstance(populate, type_gen):
-            raise ValueError('populate must be a generator.')
+            raise ValueError("populate must be a generator.")
         return True
 
     def point(self, x=None, y=None):
@@ -80,16 +80,16 @@ class Curve():
                 return
             oc = oc1 if oc1 else oc2
             if oc & _TOP:
-                x = x0 + (_YMAX - y0)*(x1 - x0)/(y1 - y0)
+                x = x0 + (_YMAX - y0) * (x1 - x0) / (y1 - y0)
                 y = _YMAX
             elif oc & _BOTTOM:
-                x = x0 + (_YMIN - y0)*(x1 - x0)/(y1 - y0)
+                x = x0 + (_YMIN - y0) * (x1 - x0) / (y1 - y0)
                 y = _YMIN
             elif oc & _RIGHT:
-                y = y0 + (_XMAX - x0)*(y1 - y0)/(x1 - x0)
+                y = y0 + (_XMAX - x0) * (y1 - y0) / (x1 - x0)
                 x = _XMAX
             elif oc & _LEFT:
-                y = y0 + (_XMIN - x0)*(y1 - y0)/(x1 - x0)
+                y = y0 + (_XMIN - x0) * (y1 - y0) / (x1 - x0)
                 x = _XMIN
             if oc is oc1:
                 x0, y0 = x, y
@@ -105,10 +105,11 @@ class Curve():
         ys = (y - y0) / yr
         return xs, ys
 
-class PolarCurve(Curve): # Points are complex
+
+class PolarCurve(Curve):  # Points are complex
     def __init__(self, graph, color, populate=None):
         if not isinstance(graph, PolarGraph):
-            raise ValueError('PolarCurve must use a PolarGraph instance.')
+            raise ValueError("PolarCurve must use a PolarGraph instance.")
         super().__init__(graph, color)
         if populate is not None and self._valid(populate):
             for z in populate:
@@ -120,15 +121,17 @@ class PolarCurve(Curve): # Points are complex
             self.lastpoint = None
             return
 
-        self.newpoint = self._scale(z.real, z.imag)  # In-range points scaled to +-1 bounding box
+        self.newpoint = self._scale(
+            z.real, z.imag
+        )  # In-range points scaled to +-1 bounding box
         if self.lastpoint is None:  # Nothing to plot. Save for next line.
             self.lastpoint = self.newpoint
             return
 
         res = self._clip(*(self.lastpoint + self.newpoint))  # Clip to +-1 box
         if res is not None:  # At least part of line was in box
-            start = res[0] + 1j*res[1]
-            end = res[2] + 1j*res[3]
+            start = res[0] + 1j * res[1]
+            end = res[2] + 1j * res[3]
             self.graph.cline(start, end, self.color)
         self.lastpoint = self.newpoint  # Scaled but not clipped
 
@@ -136,7 +139,7 @@ class PolarCurve(Curve): # Points are complex
 class TSequence(Curve):
     def __init__(self, graph, color, size, yorigin=0, yexc=1):
         super().__init__(graph, color, origin=(0, yorigin), excursion=(1, yexc))
-        self.data = array('f', (0 for _ in range(size)))
+        self.data = array("f", (0 for _ in range(size)))
         self.cur = 0
         self.size = size
         self.count = 0
@@ -150,7 +153,7 @@ class TSequence(Curve):
         if self.count < size:
             self.count += 1
         x = 0
-        dx = 1/size
+        dx = 1 / size
         for _ in range(self.count):
             self.point(x, self.data[p])
             x -= dx
@@ -160,7 +163,9 @@ class TSequence(Curve):
 
 
 class Graph(Widget):
-    def __init__(self, writer, row, col, height, width, fgcolor, bgcolor, bdcolor, gridcolor):
+    def __init__(
+        self, writer, row, col, height, width, fgcolor, bgcolor, bdcolor, gridcolor
+    ):
         super().__init__(writer, row, col, height, width, fgcolor, bgcolor, bdcolor)
         self.x0 = col
         self.x1 = col + width
@@ -176,15 +181,35 @@ class Graph(Widget):
     def show(self):
         return super().show()  # Draw or erase border
 
+
 class CartesianGraph(Graph):
-    def __init__(self,  writer, row, col, *, height=90, width=120, fgcolor=None, bgcolor=None, bdcolor=None,
-                 gridcolor=None, xdivs=10, ydivs=10, xorigin=5, yorigin=5):
-        super().__init__(writer, row, col, height, width, fgcolor, bgcolor, bdcolor, gridcolor)
+    def __init__(
+        self,
+        writer,
+        row,
+        col,
+        *,
+        height=90,
+        width=120,
+        fgcolor=None,
+        bgcolor=None,
+        bdcolor=None,
+        gridcolor=None,
+        xdivs=10,
+        ydivs=10,
+        xorigin=5,
+        yorigin=5
+    ):
+        super().__init__(
+            writer, row, col, height, width, fgcolor, bgcolor, bdcolor, gridcolor
+        )
         self.xdivs = xdivs
         self.ydivs = ydivs
-        self.x_axis_len = max(xorigin, xdivs - xorigin) * width / xdivs # Max distance from origin in pixels
+        self.x_axis_len = (
+            max(xorigin, xdivs - xorigin) * width / xdivs
+        )  # Max distance from origin in pixels
         self.y_axis_len = max(yorigin, ydivs - yorigin) * height / ydivs
-        self.xp_origin = self.x0 + xorigin * width / xdivs # Origin in pixels
+        self.xp_origin = self.x0 + xorigin * width / xdivs  # Origin in pixels
         self.yp_origin = self.y0 + (ydivs - yorigin) * height / ydivs
         self.xorigin = xorigin
         self.yorigin = yorigin
@@ -197,35 +222,52 @@ class CartesianGraph(Graph):
             y0 = self.y0
             y1 = self.y1
             if self.ydivs > 0:
-                dy = self.height / (self.ydivs) # Y grid line
+                dy = self.height / (self.ydivs)  # Y grid line
                 for line in range(self.ydivs + 1):
                     color = self.fgcolor if line == self.yorigin else self.gridcolor
                     ypos = round(self.y1 - dy * line)
                     ssd.hline(x0, ypos, x1 - x0, color)
             if self.xdivs > 0:
                 width = x1 - x0
-                dx = width / (self.xdivs) # X grid line
+                dx = width / (self.xdivs)  # X grid line
                 for line in range(self.xdivs + 1):
                     color = self.fgcolor if line == self.xorigin else self.gridcolor
                     xpos = round(x0 + dx * line)
                     ssd.vline(xpos, y0, y1 - y0, color)
 
     # Called by Curve
-    def line(self, start, end, color): # start and end relative to origin and scaled -1 .. 0 .. +1
+    def line(
+        self, start, end, color
+    ):  # start and end relative to origin and scaled -1 .. 0 .. +1
         xs = round(self.xp_origin + start[0] * self.x_axis_len)
         ys = round(self.yp_origin - start[1] * self.y_axis_len)
         xe = round(self.xp_origin + end[0] * self.x_axis_len)
         ye = round(self.yp_origin - end[1] * self.y_axis_len)
         ssd.line(xs, ys, xe, ye, color)
 
+
 class PolarGraph(Graph):
-    def __init__(self, writer, row, col, *, height=90, fgcolor=None, bgcolor=None, bdcolor=None,
-                 gridcolor=None, adivs=3, rdivs=4):
-        super().__init__(writer, row, col, height, height, fgcolor, bgcolor, bdcolor, gridcolor)
+    def __init__(
+        self,
+        writer,
+        row,
+        col,
+        *,
+        height=90,
+        fgcolor=None,
+        bgcolor=None,
+        bdcolor=None,
+        gridcolor=None,
+        adivs=3,
+        rdivs=4
+    ):
+        super().__init__(
+            writer, row, col, height, height, fgcolor, bgcolor, bdcolor, gridcolor
+        )
         self.adivs = adivs * 2  # No. of divisions of Pi radians
         self.rdivs = rdivs
-        self.radius = round(height / 2) # Unit: pixels
-        self.xp_origin = self.x0 + self.radius # Origin in pixels
+        self.radius = round(height / 2)  # Unit: pixels
+        self.xp_origin = self.x0 + self.radius  # Origin in pixels
         self.yp_origin = self.y0 + self.radius
         self.draw = True
 
@@ -240,7 +282,12 @@ class PolarGraph(Graph):
             diam = 2 * radius
             if rdivs > 0:
                 for r in range(1, rdivs + 1):
-                    display.circle(self.xp_origin, self.yp_origin, round(radius * r / rdivs), self.gridcolor)
+                    display.circle(
+                        self.xp_origin,
+                        self.yp_origin,
+                        round(radius * r / rdivs),
+                        self.gridcolor,
+                    )
             if adivs > 0:
                 v = complex(1)
                 m = rect(1, pi / adivs)
@@ -250,7 +297,9 @@ class PolarGraph(Graph):
             ssd.vline(x0 + radius, y0, diam, self.fgcolor)
             ssd.hline(x0, y0 + radius, diam, self.fgcolor)
 
-    def cline(self, start, end, color): # start and end are complex, 0 <= magnitude <= 1
+    def cline(
+        self, start, end, color
+    ):  # start and end are complex, 0 <= magnitude <= 1
         height = self.radius  # Unit: pixels
         xs = round(self.xp_origin + start.real * height)
         ys = round(self.yp_origin - start.imag * height)

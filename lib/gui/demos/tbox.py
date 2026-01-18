@@ -9,13 +9,13 @@
 # Initialise hardware and framebuf before importing modules.
 import hardware_setup  # Create a display instance
 
-from gui.core.ugui import Screen, ssd
-from gui.core.writer import CWriter
+from lib.gui.core.ugui import Screen, ssd
+from lib.gui.core.writer import CWriter
 
 import uasyncio as asyncio
-from gui.core.colors import *
+from lib.gui.core.colors import *
 import lib.gui.fonts.arial10 as arial10
-from gui.widgets import Label, Textbox, Button, CloseButton
+from lib.gui.widgets import Label, Textbox, Button, CloseButton
 
 wri = CWriter(ssd, arial10)  # verbose = True
 

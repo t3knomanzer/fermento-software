@@ -14,8 +14,8 @@ from array import array
 import sys
 from machine import Pin
 
-from gui.core.colors import *
-from gui.primitives import Pushbutton
+from lib.gui.core.colors import *
+from lib.gui.primitives import Pushbutton
 
 if sys.implementation.version < (1, 20, 0):
     raise OSError("Firmware V1.20 or later required.")
@@ -84,7 +84,7 @@ class Input:
             _vb and print("Using encoder.")
             if incr is None or decr is None:
                 raise ValueError("Must specify pins for encoder.")
-            from gui.primitives import Encoder
+            from lib.gui.primitives import Encoder
 
             self._enc = Encoder(incr, decr, div=encoder, callback=Screen.adjust)
         else:
@@ -137,7 +137,7 @@ class Input:
 # activating pushbuttons, checkboxes etc.
 class InputEnc:
     def __init__(self, nxt, sel, prev, encoder):
-        from gui.primitives import Encoder
+        from lib.gui.primitives import Encoder
 
         self._encoder = encoder  # Encoder in use
         self._enc = Encoder(nxt, prev, div=encoder, callback=self.enc_cb)
@@ -223,7 +223,9 @@ class DisplayIP:
         self.width = ssd.width
         self._is_grey = False  # Not greyed-out
 
-    def print_centred(self, writer, x, y, text, fgcolor=None, bgcolor=None, invert=False):
+    def print_centred(
+        self, writer, x, y, text, fgcolor=None, bgcolor=None, invert=False
+    ):
         sl = writer.stringlen(text)
         writer.set_textpos(ssd, y - writer.height // 2, x - sl // 2)
         if self._is_grey:
@@ -245,7 +247,9 @@ class DisplayIP:
     # to (r, g, b), scale and re-convert to integer.
     def _getcolor(self, color):
         # Takes in an integer color, bit size dependent on driver
-        return color_map[GREY_OUT] if self._is_grey and color != color_map[BG] else color
+        return (
+            color_map[GREY_OUT] if self._is_grey and color != color_map[BG] else color
+        )
 
     def usegrey(self, val):  # display.usegrey(True) sets greyed-out
         self._is_grey = val
@@ -291,17 +295,27 @@ class DisplayIP:
 # Define an input device and populate global ssd and display objects.
 class Display(DisplayIP):
     def __init__(
-        self, objssd, nxt, sel, prev=None, incr=None, decr=None, encoder=False, touch=False
+        self,
+        objssd,
+        nxt,
+        sel,
+        prev=None,
+        incr=None,
+        decr=None,
+        encoder=False,
+        touch=False,
     ):
         global display, ssd
         ssd = objssd
         if incr is False:  # Special encoder-only mode
             ev = isinstance(encoder, int)
-            assert ev and touch is False and decr is None and prev is not None, "Invalid args"
+            assert (
+                ev and touch is False and decr is None and prev is not None
+            ), "Invalid args"
             ipdev = InputEnc(nxt, sel, prev, encoder)
         else:
             if touch:
-                from gui.primitives import ESP32Touch
+                from lib.gui.primitives import ESP32Touch
 
                 ESP32Touch.threshold(touch)
                 ipdev = Input(nxt, sel, prev, incr, decr, encoder, ESP32Touch)
@@ -481,7 +495,9 @@ class Screen:
             Screen.show(False)  # Update stale controls. No physical refresh.
             # Now perform physical refresh.
             # If there is no user locking, .rfsh_lock will be acquired immediately
-            if arfsh and gran and ssd.lock_mode:  # Async refresh, display driver can handle lock
+            if (
+                arfsh and gran and ssd.lock_mode
+            ):  # Async refresh, display driver can handle lock
                 # User locking is granular: lock is released at intervals during refresh
                 await ssd.do_refresh(split, cls.rfsh_lock)
             else:  # Either synchronous refresh or old style device driver
@@ -790,7 +806,9 @@ class Widget:
         if hasattr(self, "label"):
             self.label.value(text, invert, fgcolor, bgcolor, bdcolor)
         else:
-            raise ValueError("Method {}.text does not exist.".format(self.__class__.__name__))
+            raise ValueError(
+                "Method {}.text does not exist.".format(self.__class__.__name__)
+            )
 
     # Called from subclass prior to populating framebuf with control
     def show(self, black=True):
@@ -804,7 +822,9 @@ class Widget:
             dev = display.usegrey(self._greyed_out)
             x = self.col
             y = self.row
-            dev.fill_rect(x, y, self.width, self.height, color_map[BG] if black else self.bgcolor)
+            dev.fill_rect(
+                x, y, self.width, self.height, color_map[BG] if black else self.bgcolor
+            )
         return True
 
     # Called by Screen.show(). Draw background and bounding box if required.
@@ -907,7 +927,9 @@ class LinearIO(Widget):
     ):
         self.min_delta = min_delta
         self.max_delta = max_delta
-        super().__init__(writer, row, col, height, width, fgcolor, bgcolor, bdcolor, value, active)
+        super().__init__(
+            writer, row, col, height, width, fgcolor, bgcolor, bdcolor, value, active
+        )
         self.adjustable = True  # Can show adjustable border
         self.do_precision = prcolor is not False
         if self.do_precision:
@@ -922,7 +944,9 @@ class LinearIO(Widget):
 
     # Handle increase and decrease buttons. Redefined by textbox.py, scale_log.py
     async def btnhan(self, button, up, d):
-        maxd = self.max_delta if self.precision() else d * 4  # Why move fast in precision mode?
+        maxd = (
+            self.max_delta if self.precision() else d * 4
+        )  # Why move fast in precision mode?
         t = ticks_ms()
         while button():
             await asyncio.sleep_ms(0)  # Quit fast on button release

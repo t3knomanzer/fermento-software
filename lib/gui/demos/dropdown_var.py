@@ -5,14 +5,14 @@
 
 # hardware_setup must be imported before other modules because of RAM use.
 import hardware_setup  # Create a display instance
-from gui.core.ugui import Screen, Window, ssd
+from lib.gui.core.ugui import Screen, Window, ssd
 
-from gui.widgets import Label, Button, CloseButton, Dropdown
-from gui.core.writer import CWriter
+from lib.gui.widgets import Label, Button, CloseButton, Dropdown
+from lib.gui.core.writer import CWriter
 
 # Font for CWriter
 import lib.gui.fonts.font10 as font
-from gui.core.colors import *
+from lib.gui.core.colors import *
 
 
 def newtext():  # Create new listbox entries

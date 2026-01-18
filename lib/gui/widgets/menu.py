@@ -4,12 +4,13 @@
 # Copyright (c) 2021 Peter Hinch
 
 # Usage:
-# from gui.widgets.menu import Menu
+# from lib.gui.widgets.menu import Menu
 
-from gui.core.ugui import Window, Screen, display
-from gui.widgets.buttons import Button
-from gui.widgets.listbox import Listbox
-from gui.core.colors import *
+from lib.gui.core.ugui import Window, Screen, display
+from lib.gui.widgets.buttons import Button
+from lib.gui.widgets.listbox import Listbox
+from lib.gui.core.colors import *
+
 
 # A SubMenu is a Window containing a Listbox
 # Next and Prev close the listbox without running the callback. This is
@@ -90,7 +91,9 @@ class Menu:
         for arg in args:
             if len(arg) == 2:  # Handle submenu
                 # txt, ((element, cb, (cbargs,)),(element,cb, (cbargs,)), ..) = arg
-                b = Button(writer, row, col, text=arg[0], callback=self.cb, args=arg, **btn)
+                b = Button(
+                    writer, row, col, text=arg[0], callback=self.cb, args=arg, **btn
+                )
             else:
                 txt, cb, cbargs = arg
                 b = Button(writer, row, col, text=txt, callback=cb, args=cbargs, **btn)

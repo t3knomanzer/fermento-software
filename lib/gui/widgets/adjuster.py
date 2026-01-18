@@ -3,8 +3,8 @@
 # Released under the MIT License (MIT). See LICENSE.
 # Copyright (c) 2021-2024 Peter Hinch
 
-from gui.core.ugui import LinearIO, display
-from gui.widgets.label import Label
+from lib.gui.core.ugui import LinearIO, display
+from lib.gui.widgets.label import Label
 import math
 
 TWOPI = 2 * math.pi

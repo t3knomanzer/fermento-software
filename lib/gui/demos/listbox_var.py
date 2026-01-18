@@ -5,11 +5,11 @@
 
 # hardware_setup must be imported before other modules because of RAM use.
 from hardware_setup import ssd  # Create a display instance
-from gui.core.ugui import Screen
-from gui.core.writer import CWriter
-from gui.core.colors import *
+from lib.gui.core.ugui import Screen
+from lib.gui.core.writer import CWriter
+from lib.gui.core.colors import *
 
-from gui.widgets import Listbox, Button, CloseButton
+from lib.gui.widgets import Listbox, Button, CloseButton
 import lib.gui.fonts.freesans20 as font
 
 

@@ -4,28 +4,47 @@
 # Copyright (c) 2021 Peter Hinch
 
 # Usage:
-# from gui.widgets.scale import Scale
+# from lib.gui.widgets.scale import Scale
 
-from gui.core.ugui import LinearIO, display
+from lib.gui.core.ugui import LinearIO, display
 from hardware_setup import ssd  # Display driver for Writer
-from gui.core.writer import Writer
-from gui.core.colors import *
+from lib.gui.core.writer import Writer
+from lib.gui.core.colors import *
 
-dolittle = lambda *_ : None
+dolittle = lambda *_: None
+
 
 class Scale(LinearIO):
-    def __init__(self, writer, row, col, *,
-                 ticks=200, legendcb=None, tickcb=None,
-                 height=0, width=100, bdcolor=None, fgcolor=None, bgcolor=None,
-                 callback=dolittle, args=[], 
-                 pointercolor=None, fontcolor=None, prcolor=None,
-                 value=0.0, active=False):
+    def __init__(
+        self,
+        writer,
+        row,
+        col,
+        *,
+        ticks=200,
+        legendcb=None,
+        tickcb=None,
+        height=0,
+        width=100,
+        bdcolor=None,
+        fgcolor=None,
+        bgcolor=None,
+        callback=dolittle,
+        args=[],
+        pointercolor=None,
+        fontcolor=None,
+        prcolor=None,
+        value=0.0,
+        active=False
+    ):
         if ticks % 2:
-            raise ValueError('ticks arg must be divisible by 2')
+            raise ValueError("ticks arg must be divisible by 2")
         self.ticks = ticks
         self.tickcb = tickcb
+
         def lcb(f):
-            return '{:3.1f}'.format(f)
+            return "{:3.1f}".format(f)
+
         self.legendcb = legendcb if legendcb is not None else lcb
         bgcolor = BLACK if bgcolor is None else bgcolor
         text_ht = writer.font.height()
@@ -36,8 +55,20 @@ class Scale(LinearIO):
             height = min_ht + ctrl_ht  # min workable height
         else:
             ctrl_ht = height - min_ht  # adjust ticks for greater height
-        width &= 0xfffe  # Make divisible by 2: avoid 1 pixel pointer offset
-        super().__init__(writer, row, col, height, width, fgcolor, bgcolor, bdcolor, self._to_int(value), active, prcolor)
+        width &= 0xFFFE  # Make divisible by 2: avoid 1 pixel pointer offset
+        super().__init__(
+            writer,
+            row,
+            col,
+            height,
+            width,
+            fgcolor,
+            bgcolor,
+            bdcolor,
+            self._to_int(value),
+            active,
+            prcolor,
+        )
         super()._set_callbacks(callback, args)
         self.minval = -1.0  # By default scales run from -1.0 to +1.0
         self.fontcolor = fontcolor if fontcolor is not None else self.fgcolor
@@ -71,7 +102,7 @@ class Scale(LinearIO):
             # iv increments for each tick. Its value modulo N determines tick length
             iv: int  # val / 10 at a tick position
             d: int  # val % 10: offset relative to a tick position
-            fx: int  # X offset of current tick in value units 
+            fx: int  # X offset of current tick in value units
             if val >= 100:  # Whole LHS of scale will be drawn
                 iv, d = divmod(val - 100, 10)  # Initial value
                 fx = 10 - d
@@ -114,7 +145,9 @@ class Scale(LinearIO):
                 fx += 10
                 iv += 1
 
-            display.vline(x0 + (x1 - x0) // 2, y0, y1 - y0, self.ptrcolor) # Draw pointer
+            display.vline(
+                x0 + (x1 - x0) // 2, y0, y1 - y0, self.ptrcolor
+            )  # Draw pointer
 
     def _to_int(self, v):
         return round((v + 1.0) * self.ticks * 5)  # 0..self.ticks*10
@@ -122,9 +155,9 @@ class Scale(LinearIO):
     def _fvalue(self, v=None):
         return v / (5 * self.ticks) - 1.0
 
-    def value(self, val=None): # User method to get or set value
+    def value(self, val=None):  # User method to get or set value
         if val is not None:
-            val = min(max(val, - 1.0), 1.0)
+            val = min(max(val, -1.0), 1.0)
             v = self._to_int(val)
             if v != self._value:
                 self._value = v
