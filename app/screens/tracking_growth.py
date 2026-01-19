@@ -28,75 +28,95 @@ class TrackingGrowthScreen(Screen):
         self._current_distance = 0
         self._temperature = 0
         self._humidity = 0
+        self._btn_state = True
+        self._elapsed_seconds = 0
+        self._elapsed_minutes = 0
+        self._elapsed_hours = 0
 
         self._db_service = DBService()
         self._distance_sensor = dist_sensor
         self._temperature_sensor = temp_sensor
 
-        large_writer = Writer(ssd, large_font)
-        small_writer = Writer(ssd, small_font)
+        self._large_writer = Writer(ssd, large_font)
+        self._small_writer = Writer(ssd, small_font)
         super().__init__()
 
-        width = ssd.width // 2
+        width = ssd.width // 3
         self._temperature_lbl = Label(
-            small_writer, row=2, col=2, text=width, justify=Label.LEFT
+            self._small_writer, row=2, col=2, text=width, justify=Label.LEFT
         )
         self._temperature_lbl.value("0C")
 
-        col = ssd.width // 2
+        col = ssd.width // 3
+        self._distance_lbl = Label(
+            self._small_writer, row=2, col=col, text=width, justify=Label.CENTRE
+        )
+        self._distance_lbl.value("0C")
+
+        col = ssd.width // 3 * 2
         self._humidity_lbl = Label(
-            small_writer, row=2, col=col, text=width, justify=Label.RIGHT
+            self._small_writer, row=2, col=col, text=width, justify=Label.RIGHT
         )
         self._humidity_lbl.value("0%")
 
         width = ssd.width // 2
-        col = width // 2
-        self._distance_lbl = Label(
-            small_writer, row=2, col=col, text=width, justify=Label.CENTRE
-        )
-        self._distance_lbl.value("0C")
-
-        width = ssd.width
-        row = ssd.height // 2 - large_writer.height // 2
+        row = ssd.height // 2 - self._large_writer.height // 2
         self._growth_lbl = Label(
-            large_writer, row=row, col=0, text=width, justify=Label.CENTRE
+            self._large_writer, row=row, col=0, text=width, justify=Label.LEFT
         )
         self._growth_lbl.value("0%")
 
-        width = ssd.width // 2
-        row = ssd.height - small_writer.height - 2
+        width = ssd.width // 2 - 8
+        height = self._small_writer.height + 8
+        col = ssd.width // 2 + 4
+        self._btn = Button(
+            self._small_writer,
+            row=row,
+            col=col,
+            text="Start",
+            width=width,
+            height=height,
+            callback=self.start_stop,
+        )
+
+        width = ssd.width // 3
+        row = ssd.height - self._small_writer.height - 2
         self._starter_lbl = Label(
-            small_writer, row=row, col=2, text=width, justify=Label.LEFT
+            self._small_writer, row=row, col=2, text=width, justify=Label.LEFT
         )
         self._starter_lbl.value(self._starter_name)
 
-        col = ssd.width // 2
+        col = ssd.width // 3
+        self._time_lbl = Label(
+            self._small_writer, row=row, col=col, text=width, justify=Label.CENTRE
+        )
+        self._time_lbl.value("00:00:00")
+
+        col = ssd.width // 3 * 2
         self._jar_lbl = Label(
-            small_writer, row=row, col=col, text=width, justify=Label.RIGHT
+            self._small_writer, row=row, col=col, text=width, justify=Label.RIGHT
         )
         self._jar_lbl.value(self._jar_name)
 
-        width = 32
-        height = small_writer.height + 8
-        col = ssd.width // 2 - width // 2
-        self._stop_btn = Button(
-            small_writer,
-            row=row,
-            col=col,
-            text="Stop",
-            width=width,
-            height=height,
-            callback=self.stop,
-        )
+    def start_stop(self, btn):
+        asyncio.create_task(self.start_stop_async())
 
-    def stop(self, btn):
-        Screen.back()
+    async def start_stop_async(self):
+        if self._btn_state:
+            self._btn.text = "Starting..."
+            self._btn.show()
+            await asyncio.sleep(0.01)
+            asyncio.create_task(self.compute_growth())
+            asyncio.create_task(self.update_time())
+            asyncio.create_task(self.submit_data())
+        else:
+            Screen.back()
+
+        self._btn_state = not self._btn_state
 
     def after_open(self):
         asyncio.create_task(self.compute_distance())
         asyncio.create_task(self.compute_ambient())
-        asyncio.create_task(self.compute_progress())
-        asyncio.create_task(self.save())
 
     async def compute_ambient(self):
         while type(Screen.current_screen) == TrackingGrowthScreen:
@@ -113,22 +133,36 @@ class TrackingGrowthScreen(Screen):
         while type(Screen.current_screen) == TrackingGrowthScreen:
             distance = self._distance_sensor.distance_cm()
             self._current_distance = int(distance * 10)
-            if self._starting_distance is None:
-                self._starting_distance = self._current_distance
-
             self._distance_lbl.value(f"{self._current_distance} mm")
             await asyncio.sleep(0.1)
 
-    async def compute_progress(self):
+    async def compute_growth(self):
         while type(Screen.current_screen) == TrackingGrowthScreen:
+            if self._starting_distance is None:
+                self._starting_distance = int(self._distance_sensor.distance_cm()) * 10
+
             initial_size = self._jar_distance - self._starting_distance
-            growth_distance = self._starting_distance - self._current_distance
-            growth_percent = max(0, growth_distance / initial_size) * 100.0
-            self._growth_lbl.value(f"{growth_percent:.2f}%")
+            growth_size = self._starting_distance - self._current_distance
+            growth_percent = max(0, growth_size / initial_size) * 100.0
+            self._growth_lbl.value(f"{growth_percent:.1f}%")
             await asyncio.sleep(0.1)
 
+    async def update_time(self):
+        while type(Screen.current_screen) == TrackingGrowthScreen:
+            await asyncio.sleep(1)
+            self._elapsed_seconds += 1
+            if self._elapsed_seconds == 60:
+                self._elapsed_seconds = 0
+                self._elapsed_minutes += 1
+            if self._elapsed_minutes == 60:
+                self._elapsed_minutes = 0
+                self._elapsed_hours += 1
+            self._time_lbl.value(
+                f"{self._elapsed_hours:02d}:{self._elapsed_minutes:02d}:{self._elapsed_seconds:02d}"
+            )
+
     @timeit
-    async def save(self):
+    async def submit_data(self):
         while type(Screen.current_screen) == TrackingGrowthScreen:
             gc.collect()
             print_mem()
@@ -140,4 +174,9 @@ class TrackingGrowthScreen(Screen):
                 self._current_distance,
             )
             self._db_service.create_feeding_progress(model)
-            await asyncio.sleep(60 * 15)
+
+            if self._btn.text != "Stop":
+                self._btn.text = "Stop"
+                self._btn.show()
+
+            await asyncio.sleep(60)

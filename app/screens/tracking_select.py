@@ -1,8 +1,10 @@
+import asyncio
 import random
 
 from app.screens.jar_measure import MeasureScreen
 from app.screens.tracking_growth import TrackingGrowthScreen
 from app.utils.decorators import timeit
+from app.widgets.widgets.message_box import MessageBox
 from lib.gui.core.ugui import Screen, ssd
 from lib.gui.widgets.buttons import Button
 from lib.gui.core.writer import Writer
@@ -12,19 +14,16 @@ from app.resources.names import NAMES
 from lib.gui.widgets.label import Label
 from lib.gui.widgets.listbox import Listbox
 
-from app.services.db import DBService
-
 
 class TrackingSelectScreen(Screen):
-    def __init__(self):
+    def __init__(self, feedings):
         super().__init__()
-        self._db_service = DBService()
-        writer = Writer(ssd, small_font)
+        self._writer = Writer(ssd, small_font)
 
         row = 6
         col = 0
         lbl = Label(
-            writer,
+            self._writer,
             row=row,
             col=col,
             text=ssd.width,
@@ -33,14 +32,13 @@ class TrackingSelectScreen(Screen):
         lbl.value("Select a feeding")
 
         width = ssd.width - 24
-        height = writer.height + 8
-        row = row + writer.height + 6
+        height = self._writer.height + 8
+        row = row + self._writer.height + 6
         col = 12
-        feedings = self.get_feedings()
 
         for i, item in enumerate(feedings):
             Button(
-                writer,
+                self._writer,
                 row=row,
                 col=col,
                 width=width,
@@ -50,10 +48,6 @@ class TrackingSelectScreen(Screen):
                 args=(item,),
             )
             row += height + 2
-
-    @timeit
-    def get_feedings(self):
-        return self._db_service.get_feedings(2)
 
     def select_feeding(self, btn, arg):
         print(

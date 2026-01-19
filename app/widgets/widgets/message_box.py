@@ -24,13 +24,13 @@ class MessageBox(Window):
         time=None
     ):
 
-        height = ssd.height // 2 - 4
+        height = ssd.height - 4
         width = ssd.width - 4
-        row = height // 2
-        col = 2
+        row = 4
+        col = 4
         super().__init__(row, col, height, width, writer=writer)
 
-        row = ssd.height // 2 - writer.height
+        row = ssd.height // 2 - writer.height // 2
         col = ssd.width // 2 - writer.stringlen(message) // 2
         Label(writer, row, col, message)
 

@@ -26,18 +26,18 @@ class MeasureScreen(Screen):
         self._dist_sensor = dist_sensor
         self._temp_sensor = temp_sensor
 
-        large_writer = Writer(ssd, large_font)
-        small_writer = Writer(ssd, small_font)
+        self._large_writer = Writer(ssd, large_font)
+        self._small_writer = Writer(ssd, small_font)
 
         lbl_width = ssd.width
         name_lbl = Label(
-            small_writer, row=4, col=0, text=lbl_width, justify=Label.CENTRE
+            self._small_writer, row=4, col=0, text=lbl_width, justify=Label.CENTRE
         )
         name_lbl.value(self._jar_name)
 
-        lbl_row = ssd.height // 2 - int(large_writer.height / 1.5)
+        lbl_row = ssd.height // 2 - int(self._large_writer.height / 1.5)
         self._distance_lbl = Label(
-            large_writer, row=lbl_row, col=0, text=lbl_width, justify=Label.CENTRE
+            self._large_writer, row=lbl_row, col=0, text=lbl_width, justify=Label.CENTRE
         )
         self._distance_lbl.value("")
 
@@ -45,7 +45,7 @@ class MeasureScreen(Screen):
         btn_margin = 4
         screen_center_h = ssd.width // 2
         btn_save = Button(
-            small_writer,
+            self._small_writer,
             0,
             0,
             width=btn_width,
@@ -54,7 +54,7 @@ class MeasureScreen(Screen):
             args=("."),
         )
         btn_cancel = Button(
-            small_writer,
+            self._small_writer,
             0,
             0,
             width=btn_width,
@@ -67,12 +67,21 @@ class MeasureScreen(Screen):
         btn_save.col = screen_center_h - btn_width - btn_margin // 2
         btn_cancel.col = screen_center_h + btn_margin // 2
 
+    def save(self, btn, arg):
+        asyncio.create_task(self.save_async())
+
     @timeit
-    def save(self, button, arg):
+    async def save_async(self):
+        Screen.change(
+            MessageBox, kwargs={"writer": self._small_writer, "message": "Saving..."}
+        )
+        await asyncio.sleep(0.01)
+
         gc.collect()
         print_mem()
         model = JarModel(self._jar_name, self._distance)
         self._db_service.create_jar(model)
+        Screen.back()
         Screen.back()
 
     def back(self, button, arg):

@@ -1,17 +1,17 @@
+import time
 import network
+
+from app.services.wifi_manager import WifiManager
 
 import config
 
 
 class NetworkService:
     def __init__(self):
-        pass
+        self._wm = WifiManager(ssid="Fermento", password="123456789", reboot=True)
+
+    def start_server(self):
+        self._wm.web_server()
 
     def connect(self):
-        print("Connecting to WiFi...")
-        sta_if = network.WLAN(network.STA_IF)
-        sta_if.active(True)
-        sta_if.connect(config.WIFI_SSID, config.WIFI_PASSWORD)
-        while not sta_if.isconnected():
-            pass
-        print("Connected")
+        return self._wm.connect()

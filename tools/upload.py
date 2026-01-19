@@ -2,7 +2,7 @@ import subprocess
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-EXCLUDE_DIRS = {".venv", "firmware", "sandbox", "tools", "_gui", "gui"}
+EXCLUDE_DIRS = {".venv", "firmware", "sandbox", "tools", "_lib", "lib", ".git"}
 
 MPREMOTE_BASE = ["mpremote"]
 
@@ -46,5 +46,5 @@ for py_file in sorted(ROOT.rglob("*.*")):
 
     ensure_remote_dirs(rel_path)
 
-    print("Uploading:", rel_path.as_posix())
+    print(f"Uploading: {rel_path.as_posix()} to {remote_path}")
     run_cmd(MPREMOTE_BASE + ["fs", "cp", str(py_file), remote_path])
