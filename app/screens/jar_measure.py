@@ -25,8 +25,7 @@ class MeasureScreen(Screen):
         self._distance = 0
         self._db_service = DBService()
         self._distance_sensor = distance_sensor
-        self._temperature_sensor = ambient_sensor
-        self._distance_filter = TofDistanceFilter()
+        self._distance_filter = TofDistanceFilter(max_jump_mm=30, alpha_shift=3)
 
         self._large_writer = Writer(ssd, large_font)
         self._small_writer = Writer(ssd, small_font)
@@ -91,15 +90,6 @@ class MeasureScreen(Screen):
 
     def after_open(self):
         asyncio.create_task(self.compute_distance())
-        asyncio.create_task(self.compute_temp())
-
-    async def compute_temp(self):
-        while type(Screen.current_screen) == MeasureScreen:
-            self._temperature_sensor.measure()
-            temp = self._temperature_sensor.temperature()
-            humidity = self._temperature_sensor.humidity()
-            print(f"Temp: {temp} Humidity: {humidity}")
-            await asyncio.sleep(3)
 
     async def compute_distance(self):
         while type(Screen.current_screen) == MeasureScreen:
@@ -115,4 +105,5 @@ class MeasureScreen(Screen):
 
             self._distance = filtered_distance
             self._distance_lbl.value(f"{self._distance} mm")
-            await asyncio.sleep(0.1)
+            self._distance_sensor.stop()
+            await asyncio.sleep(0.01)

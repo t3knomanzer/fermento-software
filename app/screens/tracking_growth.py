@@ -2,6 +2,7 @@ import asyncio
 import gc
 
 from app.models.feeding_progress import FeedingProgressModel
+from app.utils.filtering import TofDistanceFilter
 from hardware_setup import distance_sensor, ambient_sensor
 import lib.gui.fonts.freesans20 as large_font
 import lib.gui.fonts.arial10 as small_font
@@ -36,6 +37,7 @@ class TrackingGrowthScreen(Screen):
         self._db_service = DBService()
         self._distance_sensor = distance_sensor
         self._temperature_sensor = ambient_sensor
+        self._distance_filter = TofDistanceFilter(max_jump_mm=30, alpha_shift=3)
 
         self._large_writer = Writer(ssd, large_font)
         self._small_writer = Writer(ssd, small_font)
@@ -116,9 +118,9 @@ class TrackingGrowthScreen(Screen):
 
     def after_open(self):
         asyncio.create_task(self.compute_distance())
-        asyncio.create_task(self.compute_ambient())
+        asyncio.create_task(self.compute_temperature())
 
-    async def compute_ambient(self):
+    async def compute_temperature(self):
         while type(Screen.current_screen) == TrackingGrowthScreen:
             self._temperature_sensor.measure()
             self._temperature = self._temperature_sensor.temperature()
@@ -127,20 +129,30 @@ class TrackingGrowthScreen(Screen):
 
             self._temperature_lbl.value(f"{self._temperature}C")
             self._humidity_lbl.value(f"{self._humidity}%")
-            await asyncio.sleep(3)
+            await asyncio.sleep(10)
 
     async def compute_distance(self):
         while type(Screen.current_screen) == TrackingGrowthScreen:
-            distance = self._distance_sensor.distance_cm()
-            self._current_distance = int(distance * 10)
+            self._distance_sensor.start()
+            distance = 0
+            samples = 4
+            for i in range(samples):
+                distance += self._distance_sensor.read()
+
+            raw_avg_distance = distance // samples
+            raw_avg_distance = min(raw_avg_distance, self._jar_distance + 5)
+            filtered_distance = self._distance_filter.update(raw_avg_distance)
+
+            if self._starting_distance is None:
+                self._starting_distance = filtered_distance
+
+            self._current_distance = filtered_distance
             self._distance_lbl.value(f"{self._current_distance} mm")
+            self._distance_sensor.stop()
             await asyncio.sleep(0.1)
 
     async def compute_growth(self):
         while type(Screen.current_screen) == TrackingGrowthScreen:
-            if self._starting_distance is None:
-                self._starting_distance = int(self._distance_sensor.distance_cm()) * 10
-
             initial_size = self._jar_distance - self._starting_distance
             growth_size = self._starting_distance - self._current_distance
             growth_percent = max(0, growth_size / initial_size) * 100.0
@@ -174,7 +186,6 @@ class TrackingGrowthScreen(Screen):
                 self._current_distance,
             )
             self._db_service.create_feeding_progress(model)
-
             if self._btn.text != "Stop":
                 self._btn.text = "Stop"
                 self._btn.show()
