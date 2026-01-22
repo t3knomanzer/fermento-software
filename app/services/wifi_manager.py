@@ -173,163 +173,63 @@ class WifiManager:
 
     def send_response(self, payload, status_code=200):
         self.send_header(status_code)
-        # Serve WiFi setup page (dark theme, Bootstrap)
         self.client.sendall(
             """
-        <!DOCTYPE html>
-        <html lang="en">
-        <head>
-            <title>WiFi Setup</title>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1">
-
-            <!-- Bootstrap 5 -->
-            <link
-            href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
-            rel="stylesheet">
-
-            <style>
-                body {
-                    min-height: 100vh;
-                    background: #0e1117;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    font-family: system-ui, -apple-system, BlinkMacSystemFont,
-                                "Segoe UI", Roboto, sans-serif;
-                    color: #e6e6e6;
-                }
-
-                .card {
-                    max-width: 420px;
-                    width: 100%;
-                    background: #161b22;
-                    border-radius: 16px;
-                    box-shadow: 0 10px 30px rgba(0,0,0,0.6);
-                    border: 1px solid #222;
-                }
-
-                .logo {
-                    width: 72px;
-                    height: 72px;
-                    background: #21262d;
-                    border-radius: 50%;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    font-weight: 600;
-                    color: #9da7b1;
-                    margin: 0 auto 1rem;
-                    font-size: 14px;
-                    letter-spacing: 0.05em;
-                }
-
-                h4 {
-                    color: #c9d1d9;
-                    font-weight: 500;
-                    letter-spacing: 0.02em;
-                }
-
-                .form-check-label {
-                    color: #e6e6e6;
-                }
-
-                .form-check-input {
-                    background-color: #0e1117;
-                    border: 1px solid #30363d;
-                }
-
-                .form-check-input:checked {
-                    background-color: #2ea043;
-                    border-color: #2ea043;
-                }
-
-                .form-check-input:focus {
-                    box-shadow: 0 0 0 0.15rem rgba(46, 160, 67, 0.4);
-                    border-color: #2ea043;
-                }
-
-                .form-control {
-                    background-color: #0e1117;
-                    color: #e6e6e6;
-                    border: 1px solid #30363d;
-                }
-
-                .form-control::placeholder {
-                    color: #8b949e;
-                }
-
-                .form-control:focus {
-                    background-color: #0e1117;
-                    color: #fff;
-                    border-color: #58a6ff;
-                    box-shadow: none;
-                }
-
-                .btn-primary {
-                    background-color: #238636;
-                    border-color: #238636;
-                }
-
-                .btn-primary:hover {
-                    background-color: #2ea043;
-                    border-color: #2ea043;
-                }
-            </style>
-        </head>
-
-        <body>
-        <div class="card p-4">
-            <div class="logo">LOGO</div>
-
-            <h4 class="text-center mb-3">Connect to Wi-Fi</h4>
-
-            <form action="/configure" method="post" accept-charset="utf-8">
-                <div class="mb-3">
-        """
+            <!DOCTYPE html>
+            <html lang="en">
+                <head>
+                    <title>WiFi Manager</title>
+                    <meta charset="UTF-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1">
+                    <link rel="icon" href="data:,">
+                </head>
+                <body>
+                    {0}
+                </body>
+            </html>
+        """.format(
+                payload
+            )
         )
+        self.client.close()
 
-        # SSID list (Bootstrap radios)
+    def handle_root(self):
+        self.send_header()
+        self.client.sendall(
+            """
+            <!DOCTYPE html>
+            <html lang="en">
+                <head>
+                    <title>WiFi Manager</title>
+                    <meta charset="UTF-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1">
+                    <link rel="icon" href="data:,">
+                </head>
+                <body>
+                    <h1>WiFi Manager</h1>
+                    <form action="/configure" method="post" accept-charset="utf-8">
+        """.format(
+                self.ap_ssid
+            )
+        )
         for ssid, *_ in self.wlan_sta.scan():
             ssid = ssid.decode("utf-8")
-
-            # NOTE: If SSIDs can contain quotes or weird chars, consider sanitizing.
             self.client.sendall(
-                f"""
-                    <div class="form-check">
-                        <input class="form-check-input" type="radio" name="ssid" value="{ssid}" id="{ssid}" required>
-                        <label class="form-check-label" for="{ssid}">
-                            {ssid}
-                        </label>
-                    </div>
-            """
+                """
+                        <p><input type="radio" name="ssid" value="{0}" id="{0}"><label for="{0}">&nbsp;{0}</label></p>
+            """.format(
+                    ssid
+                )
             )
-
-        # Password + submit + close HTML
         self.client.sendall(
             """
-                </div>
-
-                <div class="mb-3">
-                    <input
-                        type="password"
-                        class="form-control"
-                        id="password"
-                        name="password"
-                        placeholder="Wi-Fi password"
-                        required>
-                </div>
-
-                <button type="submit" class="btn btn-primary w-100">
-                    Connect
-                </button>
-            </form>
-        </div>
-        </body>
-        </html>
+                        <p><label for="password">Password:&nbsp;</label><input type="password" id="password" name="password"></p>
+                        <p><input type="submit" value="Connect"></p>
+                    </form>
+                </body>
+            </html>
         """
         )
-
         self.client.close()
 
     def handle_configure(self):
