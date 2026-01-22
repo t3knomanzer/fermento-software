@@ -26,3 +26,5 @@ def track_mem(func):
             f"[track mem] After - Free: {gc.mem_free() / 1000}Kb -- Allocated: {gc.mem_alloc() / 1000}Kb"
         )
         return result
+
+    return wrapper
