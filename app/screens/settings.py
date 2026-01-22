@@ -1,8 +1,5 @@
 import os
 import machine
-from app.screens.feeding import FeedingScreen
-from app.screens.jar_name import JarNameScreen
-from app.screens.tracking_select import TrackingSelectScreen
 from lib.gui.core.ugui import Screen, ssd
 
 from lib.gui.core.writer import Writer

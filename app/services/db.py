@@ -7,8 +7,6 @@ from app.utils.decorators import time_it, track_mem
 import config
 import urequests
 
-memory.print_mem()
-
 # Create logger
 logger = LogServiceManager.get_logger(name=__name__)
 

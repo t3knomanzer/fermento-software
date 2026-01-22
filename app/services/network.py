@@ -4,8 +4,6 @@ from app.services.wifi_manager import WifiManager
 from app.utils import memory
 import config
 
-memory.print_mem()
-
 # Create logger
 logger = LogServiceManager.get_logger(name=__name__)
 

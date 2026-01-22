@@ -32,7 +32,7 @@ Implementation Notes
 import math
 import time
 
-from lib import i2c_device
+from drivers import i2c_device
 from micropython import const
 
 try:

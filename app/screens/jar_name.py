@@ -13,8 +13,6 @@ import lib.gui.fonts.arial10 as small_font
 from app.resources.names import NAMES
 from lib.gui.widgets.label import Label
 
-memory.print_mem()
-
 # Create logger
 logger = LogServiceManager.get_logger(name=__name__)
 

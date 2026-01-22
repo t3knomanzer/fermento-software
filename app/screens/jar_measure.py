@@ -18,8 +18,6 @@ from app.utils.decorators import time_it, track_mem
 from app.services.db import DBService
 from app.utils.filtering import TofDistanceFilter
 
-memory.print_mem()
-
 # Create logger
 logger = LogServiceManager.get_logger(name=__name__)
 

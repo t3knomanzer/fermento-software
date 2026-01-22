@@ -5,8 +5,6 @@ import time
 from app.services.log import LogServiceManager
 from app.utils import memory
 
-memory.print_mem()
-
 # Create logger
 logger = LogServiceManager.get_logger(name=__name__)
 
@@ -71,5 +69,3 @@ logger.info("Creating Display object...")
 gc.collect()
 display = Display(ssd, btn_nxt, btn_sel, btn_prev, btn_inc, btn_dec)
 Screen.do_gc = False
-
-memory.print_mem()

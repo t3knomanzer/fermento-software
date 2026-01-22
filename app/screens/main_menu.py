@@ -14,8 +14,6 @@ from lib.gui.core.writer import Writer
 import lib.gui.fonts.arial10 as arial10
 from lib.gui.widgets.buttons import Button
 
-memory.print_mem()
-
 # Create logger
 logger = LogServiceManager.get_logger(name=__name__)
 

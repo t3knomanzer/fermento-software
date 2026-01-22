@@ -17,8 +17,6 @@ from lib.gui.core.writer import Writer
 from app.utils.decorators import time_it, track_mem
 from app.services.db import DBService
 
-memory.print_mem()
-
 # Create logger
 logger = LogServiceManager.get_logger(name=__name__)
 

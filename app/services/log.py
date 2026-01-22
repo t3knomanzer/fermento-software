@@ -20,7 +20,7 @@ class LogServiceManager:
     def set_level(cls, level: int) -> None:
         cls._level = level
         for k, v in enumerate(cls._services):
-            v.setLevel(level)
+            v.set_level(level)
 
     @classmethod
     def set_name(cls, name: str) -> None:
@@ -53,7 +53,6 @@ class LogService:
         self._logger = logging.getLogger(name)
         self._logger.setLevel(level)
 
-        print(f"filepath: {filepath}")
         file_handler = logging.FileHandler(str(filepath))
         file_handler.setFormatter(formatter)
         self._logger.addHandler(file_handler)

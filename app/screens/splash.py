@@ -14,8 +14,6 @@ from lib.gui.core.writer import Writer
 import lib.gui.fonts.arial10 as arial10
 import config
 
-memory.print_mem()
-
 # Create logger
 logger = LogServiceManager.get_logger(name=__name__)
 
@@ -45,7 +43,7 @@ class SplashScreen(Screen):
             bgcolor=WHITE,
             bdcolor=None,
         )
-        self.graphic.value(path := "/app/resources/fermento_logo.xbm")
+        self.graphic.value(path := "fermento_logo.xbm")
 
         # Progress messages
         self._lbl_msg = Label(

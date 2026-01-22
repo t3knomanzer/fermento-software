@@ -14,8 +14,10 @@ from lib.gui.core.ugui import Screen
 
 logger = log.LogServiceManager.get_logger(name=__name__)
 
+
 def main():
     logger.info("Starting app...")
     Screen.change(SplashScreen)
+
 
 main()
