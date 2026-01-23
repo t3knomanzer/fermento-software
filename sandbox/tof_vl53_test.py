@@ -1,6 +1,6 @@
 import time
 from machine import I2C, Pin
-from drivers.VL53L0X import VL53L0X
+from drivers.vl53l0x import VL53L0X
 
 # from lib import busio
 
