@@ -9,7 +9,7 @@ from gui.core.colors import WHITE, BLACK
 
 class BaseScreen(Screen):
     def __init__(self):
-        writer = Writer(ssd, arial10)
+        writer = Writer(ssd, arial10, verbose=False)
         super().__init__(writer)
 
         bmp_size = (100, 60)

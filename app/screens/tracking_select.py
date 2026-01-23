@@ -18,7 +18,7 @@ logger = LogServiceManager.get_logger(name=__name__)
 class TrackingSelectScreen(Screen):
     def __init__(self, feedings):
         super().__init__()
-        self._writer = Writer(ssd, small_font)
+        self._writer = Writer(ssd, small_font, verbose=False)
 
         # UI widgets
         # Title label

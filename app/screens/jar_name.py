@@ -20,7 +20,7 @@ logger = LogServiceManager.get_logger(name=__name__)
 class JarNameScreen(Screen):
     def __init__(self):
         super().__init__()
-        writer = Writer(ssd, small_font)
+        writer = Writer(ssd, small_font, verbose=False)
 
         # UI Widgets
         # Title

@@ -27,12 +27,11 @@ class LogServiceManager:
     @classmethod
     def set_filepath(cls, filepath: str) -> None:
         # Remove the log file if it exists
-        if os.path.exists(filepath):
+        try:
             os.remove(filepath)
+        except OSError:
+            print(f"Couldn't delete log file {filepath}")
         cls._filepath = filepath
-
-        # Create the log output folder
-        cls._filepath.parent.mkdir(parents=True, exist_ok=True)
 
     @classmethod
     def get_logger(cls, name: str | None = None) -> "LogService":

@@ -1,10 +1,9 @@
 import asyncio
 import gc
 
-from app.services.log import LogServiceManager
-from app.utils import memory
 import config
 from hardware_setup import tof_sensor
+from app.services.log import LogServiceManager
 import lib.gui.fonts.freesans20 as large_font
 import lib.gui.fonts.arial10 as small_font
 from lib.gui.core.ugui import Screen, ssd
@@ -16,7 +15,6 @@ from app.widgets.widgets.message_box import MessageBox
 from app.models.jar import JarModel
 from app.utils.decorators import time_it, track_mem
 from app.services.db import DBService
-from app.utils.filtering import TofDistanceFilter
 
 # Create logger
 logger = LogServiceManager.get_logger(name=__name__)
@@ -29,10 +27,9 @@ class MeasureScreen(Screen):
         self._distance = 0
         self._db_service = DBService()
         self._distance_sensor = tof_sensor
-        self._distance_filter = TofDistanceFilter(max_jump_mm=30, alpha_shift=3)
 
-        self._large_writer = Writer(ssd, large_font)
-        self._small_writer = Writer(ssd, small_font)
+        self._large_writer = Writer(ssd, large_font, verbose=False)
+        self._small_writer = Writer(ssd, small_font, verbose=False)
 
         # UI Widgets
         # Jar name

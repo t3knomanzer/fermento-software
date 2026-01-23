@@ -43,8 +43,8 @@ class TrackingGrowthScreen(Screen):
         self._distance_sensor = tof_sensor
         self._temperature_sensor = ambient_sensor
 
-        self._large_writer = Writer(ssd, large_font)
-        self._small_writer = Writer(ssd, small_font)
+        self._large_writer = Writer(ssd, large_font, verbose=False)
+        self._small_writer = Writer(ssd, small_font, verbose=False)
         super().__init__()
 
         # UI widgets

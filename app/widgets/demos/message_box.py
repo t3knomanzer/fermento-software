@@ -26,7 +26,7 @@ class BaseScreen(Screen):
         def open_dialog(button, kwargs_):
             Screen.change(MessageBox, kwargs=kwargs_)
 
-        writer = Writer(ssd, arial10)
+        writer = Writer(ssd, arial10, verbose=False)
 
         # DialogBox constructor arguments. Here we pass all as keyword wargs.
         kwargs = {"writer": writer, "message": "Test dialog!", "time": 3}
