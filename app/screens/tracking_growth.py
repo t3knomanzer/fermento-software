@@ -26,6 +26,9 @@ class TrackingGrowthScreen(Screen):
     STATE_RUNNING = 1
 
     def __init__(self, feeding_id, starter_name, jar_name, jar_distance):
+        logger.debug(
+            f"Received feeding:{feeding_id} starter:{starter_name} jar:{jar_name} jar height:{jar_distance}"
+        )
         self._feeding_id = feeding_id
         self._starter_name = starter_name
         self._jar_name = jar_name
@@ -34,7 +37,8 @@ class TrackingGrowthScreen(Screen):
         self._current_distance = 0
         self._temperature = 0
         self._humidity = 0
-        self._state = True
+        self._state = TrackingGrowthScreen.STATE_STOPPED
+        self._timer_state = TrackingGrowthScreen.STATE_STOPPED
         self._elapsed_seconds = 0
         self._elapsed_minutes = 0
         self._elapsed_hours = 0
@@ -102,7 +106,6 @@ class TrackingGrowthScreen(Screen):
         self._starter_lbl.value(self._starter_name)
 
         # Bottom center  (time elapsed)
-        row = 2
         col = ssd.width // 3
         self._time_lbl = Label(
             self._small_writer, row=row, col=col, text=width, justify=Label.CENTRE
@@ -116,116 +119,108 @@ class TrackingGrowthScreen(Screen):
         )
         self._jar_lbl.value(self._jar_name)
 
+    def after_open(self):
+        asyncio.create_task(self.run())
+
+    async def run(self):
+        # Compute temperature only once at the beginning if we are not running.
+        self.compute_temperature()
+
+        while type(Screen.current_screen) == TrackingGrowthScreen:
+            if self._state == TrackingGrowthScreen.STATE_RUNNING:
+                # We start the timer async since it updates at a different interval.
+                if self._timer_state == TrackingGrowthScreen.STATE_STOPPED:
+                    self._timer_state = TrackingGrowthScreen.STATE_RUNNING
+                    asyncio.create_task(self.update_time())
+
+                self.compute_temperature()
+                self.compute_distance()
+                self.compute_growth()
+
+                gc.collect()
+                self.submit_data()
+                await asyncio.sleep(config.RUNNING_UPDATE_DELAY)
+
+            elif self._state == TrackingGrowthScreen.STATE_STOPPED:
+                self.compute_distance()
+                await asyncio.sleep(config.PREVIEW_UPDATE_DELAY)
+
     def start_stop_callback(self, btn):
         asyncio.create_task(self.start_stop_async())
 
     async def start_stop_async(self):
         if self._state == TrackingGrowthScreen.STATE_STOPPED:
-            self._state = TrackingGrowthScreen.STATE_RUNNING
             # Changing the text property doesn't force an update
-            self._btn.text = "Starting..."
-            self._btn.show()
-            await asyncio.sleep(0.1)
-
-            # At this point we start
-            asyncio.create_task(self.compute_growth())
-            asyncio.create_task(self.update_time())
-            asyncio.create_task(self.submit_data())
-
             self._btn.text = "Stop"
             self._btn.show()
             await asyncio.sleep(0.1)
+            self._state = TrackingGrowthScreen.STATE_RUNNING
 
         elif self._state == TrackingGrowthScreen.STATE_RUNNING:
             self._state = TrackingGrowthScreen.STATE_STOPPED
             Screen.back()
 
-    def after_open(self):
-        # We start tracking the distance, temperature and humidity right away
-        # so that the user has some feedback.
-        asyncio.create_task(self.compute_distance())
-        asyncio.create_task(self.compute_temperature())
+    def compute_temperature(self):
+        self._temperature_sensor.measure()
+        self._temperature = self._temperature_sensor.temperature()
+        self._humidity = self._temperature_sensor.humidity()
 
-    @track_mem
-    async def compute_temperature(self):
-        while type(Screen.current_screen) == TrackingGrowthScreen:
-            gc.collect()
-            self._temperature_sensor.measure()
-            self._temperature = self._temperature_sensor.temperature()
-            self._humidity = self._temperature_sensor.humidity()
-            print(f"Temp: {self._temperature} Humidity: {self._humidity}")
+        self._temperature_lbl.value(f"{self._temperature:.1f}C")
+        self._humidity_lbl.value(f"{self._humidity:.1f}%")
+        logger.info(f"T: {self._temperature} RH: {self._humidity}")
 
-            self._temperature_lbl.value(f"{self._temperature}C")
-            self._humidity_lbl.value(f"{self._humidity}%")
+    def compute_distance(self):
+        distance = 0
+        samples = 0
 
-            logger.info(f"Temperature: {self._temperature} Humidity: {self._humidity}")
-            await asyncio.sleep(config.TEMPERATURE_DELAY)
+        # Change the number of samples depending on the current state
+        # since sampling takes time.
+        if self._state == TrackingGrowthScreen.STATE_STOPPED:
+            samples = config.TOF_SAMPLES_PREVIEW
+        elif self._state == TrackingGrowthScreen.STATE_RUNNING:
+            samples = config.TOF_SAMPLES_RUNNING
 
-    @time_it
-    @track_mem
-    async def compute_distance(self):
-        while type(Screen.current_screen) == TrackingGrowthScreen:
-            distance = 0
-            samples = 0
-            # Change the number of samples depending on the current state
-            # since sampling takes time.
-            if self._state == TrackingGrowthScreen.STATE_STOPPED:
-                samples = config.TOF_SAMPLES_STOPPED
-                delay = config.DISTANCE_DELAY_STOPPED
-            elif self._state == TrackingGrowthScreen.STATE_RUNNING:
-                samples = config.TOF_SAMPLES_RUNNING
-                delay = config.DISTANCE_DELAY_RUNNING
+        # Take the samples and compute the average.
+        for i in range(samples):
+            distance += self._distance_sensor.range
+        raw_avg_distance = distance // samples
 
-            # Take the samples and compute the average.
-            gc.collect()
-            for i in range(samples):
-                distance += self._distance_sensor.range
-            raw_avg_distance = distance // samples
-
-            # If this the user pressed start, save the first sample as the
-            # the starting distance.
-            if (
-                self._starting_distance is None
-                and self._state == TrackingGrowthScreen.STATE_RUNNING
-            ):
+        # Once we are running, save the first sample as the starting distance.
+        if self._state == TrackingGrowthScreen.STATE_RUNNING:
+            if self._starting_distance is None:
                 self._starting_distance = raw_avg_distance
 
-            # Update the label.
-            self._current_distance = raw_avg_distance
-            self._distance_lbl.value(f"{self._current_distance} mm")
-            await asyncio.sleep(delay)
+        # Update the label.
+        self._current_distance = raw_avg_distance
+        self._distance_lbl.value(f"{self._current_distance} mm")
+        logger.info(f"Distance: {self._current_distance}")
 
-    async def compute_growth(self):
-        while type(Screen.current_screen) == TrackingGrowthScreen:
-            initial_size = self._jar_distance - self._starting_distance
-            growth_size = self._starting_distance - self._current_distance
-            growth_percent = max(0, growth_size / initial_size) * 100.0
+    def compute_growth(self):
+        initial_size = self._jar_distance - self._starting_distance
+        growth_size = self._starting_distance - self._current_distance
+        growth_percent = max(0, growth_size / initial_size) * 100.0
 
-            self._growth_lbl.value(f"{int(growth_percent)}%")
-
-            await asyncio.sleep(config.GROWTH_DELAY)
+        self._growth_lbl.value(f"{int(growth_percent)}%")
+        logger.info(f"Growth: {growth_percent}")
 
     async def update_time(self):
+        elapsed_seconds = 0
         while type(Screen.current_screen) == TrackingGrowthScreen:
             await asyncio.sleep(1)
-
             elapsed_seconds += 1
             h, rem = divmod(elapsed_seconds, 3600)
             m, s = divmod(rem, 60)
-
             self._time_lbl.value(f"{h:02d}:{m:02d}:{s:02d}")
 
-    @time_it
-    @track_mem
-    async def submit_data(self):
-        while type(Screen.current_screen) == TrackingGrowthScreen:
-            gc.collect()
-            model = FeedingProgressModel(
-                self._feeding_id,
-                self._temperature,
-                self._humidity / 100,
-                self._starting_distance,
-                self._current_distance,
-            )
-            self._db_service.create_feeding_progress(model)
-            await asyncio.sleep(config.SUBMIT_DATA_DELAY)
+    def submit_data(self):
+        model = FeedingProgressModel(
+            self._feeding_id,
+            self._temperature,
+            self._humidity / 100,
+            self._starting_distance,
+            self._current_distance,
+        )
+        logger.info(
+            f"Submitting data: feeding: {self._feeding_id} T: {self._temperature} RH: {self._humidity}% starting distance:{self._starting_distance} cur distance: {self._current_distance}"
+        )
+        self._db_service.create_feeding_progress(model)
