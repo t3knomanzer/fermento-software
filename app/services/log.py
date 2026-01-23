@@ -1,15 +1,21 @@
 import os
-import logging
 
-DEBUG = logging.DEBUG
-INFO = logging.INFO
-WARNING = logging.WARNING
-ERROR = logging.ERROR
-CRITICAL = logging.CRITICAL
+DEBUG = 0
+INFO = 10
+WARNING = 20
+ERROR = 30
+CRITICAL = 40
+
+LEVEL_NAMES = {
+    DEBUG: "DEBUG",
+    INFO: "INFO",
+    WARNING: "WARNING",
+    ERROR: "ERROR",
+    CRITICAL: "CRITICAL",
+}
 
 
 class LogServiceManager:
-    _name = "Fermento"
     _filepath = ""
     _services = {}
     _level = INFO
@@ -19,10 +25,6 @@ class LogServiceManager:
         cls._level = level
         for k, v in enumerate(cls._services):
             v.set_level(level)
-
-    @classmethod
-    def set_name(cls, name: str) -> None:
-        cls._name = name
 
     @classmethod
     def set_filepath(cls, filepath: str) -> None:
@@ -35,32 +37,23 @@ class LogServiceManager:
 
     @classmethod
     def get_logger(cls, name: str | None = None) -> "LogService":
-        name_ = name if name else cls._name
-        if name_ not in cls._services:
-            cls._services[name_] = LogService(name_, cls._filepath, cls._level)
-        return cls._services[name_]
+        if name not in cls._services:
+            cls._services[name] = LogService(name, cls._filepath, cls._level)
+        return cls._services[name]
 
 
 class LogService:
     def __init__(self, name: str, filepath: str, level: int = INFO):
-        formatter = logging.Formatter(
-            fmt="%(asctime)s [%(levelname)s][%(name)s] %(message)s",
-            datefmt="%m/%d/%y %H:%M:%S",
-        )
+        self._name = name
+        self._filepath = filepath
+        self._level = level
 
-        self._logger = logging.getLogger(name)
-        self._logger.setLevel(level)
-
-        file_handler = logging.FileHandler(filepath)
-        file_handler.setFormatter(formatter)
-        self._logger.addHandler(file_handler)
-
-        console_handler = logging.StreamHandler()
-        console_handler.setFormatter(formatter)
-        self._logger.addHandler(console_handler)
+    def set_level(self, level: str) -> None:
+        self._level = level
 
     def log(self, message: str, level: int, name: str | None = None):
-        self._logger.log(level, message)
+        if level >= self._level:
+            print(f"[{LEVEL_NAMES[level]}][{name or self._name}] {message}")
 
     def info(self, message: str):
         self.log(message, INFO)
