@@ -2,8 +2,7 @@ import config
 from app.services import log
 
 # Setup logging
-log.LogServiceManager.set_level(log.DEBUG)
-log.LogServiceManager.set_filepath(config.LOG_FILEPATH)
+log.LogServiceManager.initialize(level=log.DEBUG)
 
 import hardware_setup
 from app.screens.splash import SplashScreen
