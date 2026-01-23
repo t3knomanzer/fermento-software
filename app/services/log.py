@@ -1,6 +1,5 @@
 import os
 import logging
-import inspect
 from pathlib import Path
 
 DEBUG = logging.DEBUG
