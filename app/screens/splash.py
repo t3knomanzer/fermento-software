@@ -5,7 +5,6 @@ from app.screens.main_menu import MainMenuScreen
 from app.services.log import LogServiceManager
 from app.services.network import NetworkService
 from app.utils import memory
-from app.utils.decorators import track_mem
 from app.utils.time import init_time
 from lib.gui.core.colors import BLACK, WHITE
 from lib.gui.core.ugui import Screen, ssd
@@ -58,16 +57,18 @@ class SplashScreen(Screen):
     def after_open(self):
         asyncio.create_task(self.initialize())
 
-    @track_mem
     async def initialize(self):
         logger.info("Initializing WiFi...")
 
         # Connect ti wifi or start the web server for the
         # user to connect to and enter credentials.
         gc.collect()
+        memory.print_mem()
         await self.display_message_async("Connecting")
         if self._net_service.connect():
             await self.display_message_async("Setting up")
+            # Give WiFi enough time to settle before setting the time
+            await asyncio.sleep(1)
             init_time()
             await self.display_message_async("Welcome")
             await asyncio.sleep(self._delay)
