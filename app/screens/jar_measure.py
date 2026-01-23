@@ -1,6 +1,7 @@
 import asyncio
 import gc
 
+from app.utils.memory import print_mem
 import config
 from hardware_setup import tof_sensor
 from app.services.log import LogServiceManager
@@ -79,9 +80,7 @@ class MeasureScreen(Screen):
         asyncio.create_task(self.save_async())
 
     @time_it
-    @track_mem
     async def save_async(self):
-        gc.collect()
         # Popup, since saving can take a while.
         Screen.change(
             MessageBox, kwargs={"writer": self._small_writer, "message": "Saving..."}
