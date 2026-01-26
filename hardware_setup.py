@@ -20,9 +20,6 @@ from drivers.vl53l0x import VL53L0X
 logger.info("Importing SCD4X driver...")
 from drivers.scd4x import SCD4X
 
-logger.info("Importing DHT driver...")
-import dht
-
 logger.info("Importing gui...")
 from lib.gui.core.ugui import Display, Screen
 
@@ -49,14 +46,14 @@ if ssd is None:
     logger.critical("Couldn't create SSD.")
     sys.exit()
 
-logger.info("Creating tof sensor...")
+logger.info("Creating TOF sensor...")
 tof_sensor = None
 retries = 3
 while not tof_sensor and retries > 0:
     try:
         tof_sensor = VL53L0X(i2c_bus)
     except Exception as e:
-        logger.error(f"({retries}) Error creating range sensor. {e}")
+        logger.error(f"({retries}) Error creating TOF sensor. {e}")
         retries -= 1
         time.sleep(1)
 
@@ -64,34 +61,19 @@ if tof_sensor is None:
     logger.critical("Couldn't create TOF sensor.")
     sys.exit()
 
-logger.info("Creating SCD4X sensor...")
-co2_sensor = None
+logger.info("Creating environment sensor...")
+env_sensor = None
 retries = 3
-while not co2_sensor and retries > 0:
+while not env_sensor and retries > 0:
     try:
-        co2_sensor = SCD4X(i2c_bus)
+        env_sensor = SCD4X(i2c_bus)
     except Exception as e:
-        logger.error(f"({retries}) Error creating CO2 sensor. {e}")
+        logger.error(f"({retries}) Error creating environment sensor. {e}")
         retries -= 1
         time.sleep(1)
 
-if co2_sensor is None:
-    logger.critical("Couldn't create CO2 sensor.")
-    sys.exit()
-
-logger.info("Creating TRH sensor...")
-trh_sensor = None
-retries = 3
-while not trh_sensor and retries > 0:
-    try:
-        trh_sensor = dht.DHT22(Pin(5, Pin.IN))
-    except Exception as e:
-        logger.error(f"({retries}) Error creating TRH sensor. {e}")
-        retries -= 1
-        time.sleep(1)
-
-if trh_sensor is None:
-    logger.critical("Couldn't create TRH sensor.")
+if env_sensor is None:
+    logger.critical("Couldn't create environment sensor.")
     sys.exit()
 
 logger.info("Creating button pins...")
