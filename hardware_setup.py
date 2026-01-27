@@ -9,6 +9,12 @@ from app.utils import memory
 # Create logger
 logger = LogServiceManager.get_logger(name=__name__)
 
+# Turn off onboard LED
+led = neopixel.NeoPixel(Pin(48), 1)
+led.fill((0, 0, 0))
+led.write()
+
+
 # We log a lot of information in this file since many things could go wrong
 # while creating and initializing the hardware.
 logger.info("Importing SSD1306 driver...")
@@ -27,6 +33,7 @@ memory.print_mem()
 
 logger.info("Creating I2C bus...")
 i2c_bus = I2C(0, sda=Pin(2), scl=Pin(4))
+i2c_bus = I2C(0, sda=Pin(45), scl=Pin(47))
 
 logger.info("Creating SSD...")
 oled_width = 128
@@ -79,6 +86,8 @@ if env_sensor is None:
 logger.info("Creating button pins...")
 btn_nxt = Pin(18, Pin.IN, Pin.PULL_UP)
 btn_sel = Pin(19, Pin.IN, Pin.PULL_UP)
+btn_nxt = Pin(41, Pin.IN, Pin.PULL_UP)
+btn_sel = Pin(42, Pin.IN, Pin.PULL_UP)
 btn_prev = None
 btn_inc = None
 btn_dec = None
