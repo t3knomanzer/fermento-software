@@ -10,9 +10,7 @@ EXCLUDE_DIRS = {
     "firmware",
     "sandbox",
     "tools",
-    "_lib",
     "lib",
-    "_drivers",
     "drivers",
 }
 
