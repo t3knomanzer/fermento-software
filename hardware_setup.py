@@ -26,6 +26,9 @@ from drivers.vl53l0x import VL53L0X
 logger.info("Importing SCD4X driver...")
 from drivers.scd4x import SCD4X
 
+logger.info("Importing BME680 driver...")
+from drivers.bme680 import Adafruit_BME680_I2C
+
 logger.info("Importing gui...")
 from lib.gui.core.ugui import Display, Screen
 
@@ -68,19 +71,19 @@ if tof_sensor is None:
     logger.critical("Couldn't create TOF sensor.")
     sys.exit()
 
-logger.info("Creating environment sensor...")
+logger.info("Creating SDC41 sensor...")
 env_sensor = None
 retries = 3
 while not env_sensor and retries > 0:
     try:
         env_sensor = SCD4X(i2c_bus)
     except Exception as e:
-        logger.error(f"({retries}) Error creating environment sensor. {e}")
+        logger.error(f"({retries}) Error creating SDC41 sensor. {e}")
         retries -= 1
         time.sleep(1)
 
 if env_sensor is None:
-    logger.critical("Couldn't create environment sensor.")
+    logger.critical("Couldn't create SDC41 sensor.")
     sys.exit()
 
 logger.info("Creating button pins...")
