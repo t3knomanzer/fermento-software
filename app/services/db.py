@@ -1,11 +1,15 @@
 import gc
+
+import ujson
 from app.models.feeding import FeedingModel
 from app.models.jar import JarModel
 from app.services.log import LogServiceManager
 from app.utils import memory
 from app.utils.decorators import time_it, track_mem
+from lib.urllib.parse import urlencode
 import config
 import urequests
+
 
 # Create logger
 logger = LogServiceManager.get_logger(name=__name__)
@@ -44,8 +48,15 @@ class DBService(object):
     @time_it
     def get_feedings(self, number=2):
         headers = self._get_headers()
-        url = self._get_url(config.TABLE_FEEDINGS, query=f"pageSize={number}")
+        params = [
+            ("pageSize", number),
+            ("sort[0][field]", "date"),
+            ("sort[0][direction]", "desc"),
+        ]
+        url = self._get_url(config.TABLE_FEEDINGS, query=urlencode(params))
+
         gc.collect()
+        logger.debug(f"Calling URL: {url}")
         response = urequests.get(url, headers=headers)
         data = response.json()
 
