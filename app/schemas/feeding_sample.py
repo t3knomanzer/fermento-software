@@ -1,15 +1,15 @@
-class TelemetrySchema:
+class FeedingSampleSchema:
     """
-    Schema for telemetry data validation.
+    Schema for feeding sample data validation.
     """
 
     def __init__(
         self,
-        feeding_event_id: int = 0,
-        temperature: float = 0.0,
-        humidity: float = 0.0,
-        co2: float = 0.0,
-        distance: float = 0.0,
+        feeding_event_id: int,
+        temperature: float,
+        humidity: float,
+        co2: float,
+        distance: float,
     ) -> None:
         self.feeding_event_id: int = feeding_event_id
         self.temperature: float = temperature

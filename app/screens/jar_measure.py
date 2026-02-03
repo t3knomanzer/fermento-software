@@ -2,6 +2,8 @@ import asyncio
 import gc
 from math import ceil
 
+from app.schemas.jar import JarSchema
+from app.services.mqtt import MqttService
 from app.utils.memory import print_mem
 import config
 from hardware_setup import tof_sensor
@@ -30,6 +32,7 @@ class MeasureScreen(Screen):
         self._distance = 0
         self._db_service = DBService()
         self._tof_sensor = tof_sensor
+        self._mqtt_service = MqttService()
 
         self._tof_filter = TofDistanceFilter()
 
@@ -132,8 +135,13 @@ class MeasureScreen(Screen):
         self._tof_sensor.start_ranging()
 
         try:
-            model = JarModel(self._jar_name, self._distance)
-            self._db_service.create_jar(model)
+            schema = JarSchema(self._jar_name, self._distance)
+            topic = config.TOPIC_MQTT_JARS_CREATE
+            logger.info(f"Saving jar to topic: {topic} {schema.to_dict()}")
+            self._mqtt_service.publish(
+                topic=topic,
+                message=schema.to_dict(),
+            )
 
             Screen.back()  # Close the popup
             Screen.back()  # Back to the main menu

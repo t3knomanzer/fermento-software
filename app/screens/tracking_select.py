@@ -54,12 +54,12 @@ class TrackingSelectScreen(Screen):
 
     def select_feeding(self, btn, arg):
         logger.info(
-            f"Selected id:{arg.id} date:{arg.date} starter:{arg.starter_name}  jar:{arg.jar_name} distance:{arg.jar_distance}"
+            f"Selected id:{arg.id} date:{arg.date} starter:NA  jar:NA distance:0"
         )
         # We set the mode to replace so that when we go back, it takes us back
         #  to the main menu.
         Screen.change(
             TrackingGrowthScreen,
             mode=Screen.REPLACE,
-            args=[arg.id, arg.starter_name, arg.jar_name, arg.jar_distance],
+            args=[arg.id, "NA", "NA", 110],
         )

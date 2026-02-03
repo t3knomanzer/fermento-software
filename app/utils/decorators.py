@@ -31,3 +31,19 @@ def track_mem(func):
         return result
 
     return wrapper
+
+
+# Source - https://stackoverflow.com/q/6760685
+# Posted by theheadofabroom, modified by community. See post 'Timeline' for change history
+# Retrieved 2026-02-03, License - CC BY-SA 4.0
+
+
+def singleton(class_):
+    instances = {}
+
+    def getinstance(*args, **kwargs):
+        if class_ not in instances:
+            instances[class_] = class_(*args, **kwargs)
+        return instances[class_]
+
+    return getinstance

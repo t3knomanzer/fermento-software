@@ -60,11 +60,6 @@ class SplashScreen(Screen):
     def after_open(self):
         asyncio.create_task(self.initialize())
 
-    def msg_handler(self, topic, msg):
-        logger.info(
-            f"MQTT Message received on topic: {topic.decode()} with message: {msg.decode()}"
-        )
-
     async def initialize(self):
         logger.info("Initializing WiFi...")
 
@@ -89,9 +84,7 @@ class SplashScreen(Screen):
 
             logger.info("Initializing MQTT...")
             self._mqtt_service.connect()
-            self._mqtt_service.add_message_handler(self.msg_handler)
             self._mqtt_service.subscribe_topic("fermento/#")
-            self._mqtt_service.disconnect()
 
             await self.display_message_async("Welcome")
             await asyncio.sleep(self._delay)

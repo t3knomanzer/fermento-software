@@ -4,7 +4,7 @@ import json
 import time
 
 from app.models.feeding_progress import FeedingProgressModel
-from app.schemas.telemetry import TelemetrySchema
+from app.schemas.feeding_sample import FeedingSampleSchema
 from app.services.log import LogServiceManager
 from app.services.mqtt import MqttService
 from app.utils import memory
@@ -282,7 +282,7 @@ class TrackingGrowthScreen(Screen):
             await asyncio.sleep(1)
 
     def submit_data(self):
-        model = TelemetrySchema(
+        model = FeedingSampleSchema(
             feeding_event_id=0,  # Pass correct db id here
             temperature=self._temperature,
             humidity=self._rh,
@@ -290,12 +290,10 @@ class TrackingGrowthScreen(Screen):
             distance=self._current_distance,
         )
         logger.info(
-            f"Submitting data: feeding: {self._feeding_id} T: {self._temperature} RH: {self._rh}% CO2: {self._co2}ppm distance: {self._current_distance}"
+            f"Submitting data - feeding:{self._feeding_id} T:{self._temperature} RH:{self._rh}% CO2:{self._co2}ppm distance:{self._current_distance}"
         )
 
-        memory.print_mem()
-        self._mqtt_service.connect()
         self._mqtt_service.publish(
-            topic=f"fermento/dev001/telemetry", message=model.to_dict()
+            topic=config.TOPIC_MQTT_FEEDING_SAMPLES_CREATE,
+            message=model.to_dict(),
         )
-        self._mqtt_service.disconnect()
