@@ -1,9 +1,12 @@
 import asyncio
 import gc
+import json
 import time
 
 from app.models.feeding_progress import FeedingProgressModel
+from app.schemas.telemetry import TelemetrySchema
 from app.services.log import LogServiceManager
+from app.services.mqtt import MqttService
 from app.utils import memory
 from app.utils.filtering import TofDistanceFilter
 from app.services.db import DBService
@@ -50,6 +53,7 @@ class TrackingGrowthScreen(Screen):
         self._run_task = None
 
         self._db_service = DBService()
+        self._mqtt_service = MqttService()
         self._tof_sensor = tof_sensor
         self._scd41_sensor = sdc41
         self._sht40 = sht40
@@ -278,21 +282,20 @@ class TrackingGrowthScreen(Screen):
             await asyncio.sleep(1)
 
     def submit_data(self):
-        model = FeedingProgressModel(
-            self._feeding_id,
-            self._temperature,
-            self._rh / 100,
-            self._co2,
-            self._starting_distance,
-            self._current_distance,
+        model = TelemetrySchema(
+            feeding_event_id=0,  # Pass correct db id here
+            temperature=self._temperature,
+            humidity=self._rh,
+            co2=self._co2,
+            distance=self._current_distance,
         )
         logger.info(
-            f"Submitting data: feeding: {self._feeding_id} T: {self._temperature} RH: {self._rh}% "
-        )
-        logger.info(f"CO2: {self._co2}ppm")
-        logger.info(
-            f"starting distance:{self._starting_distance} cur distance: {self._current_distance}"
+            f"Submitting data: feeding: {self._feeding_id} T: {self._temperature} RH: {self._rh}% CO2: {self._co2}ppm distance: {self._current_distance}"
         )
 
         memory.print_mem()
-        self._db_service.create_feeding_progress(model)
+        self._mqtt_service.connect()
+        self._mqtt_service.publish(
+            topic=f"fermento/dev001/telemetry", message=model.to_dict()
+        )
+        self._mqtt_service.disconnect()

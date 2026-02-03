@@ -4,6 +4,7 @@ import sys
 
 from app.screens.main_menu import MainMenuScreen
 from app.services.log import LogServiceManager
+from app.services.mqtt import MqttService
 from app.services.network import NetworkService
 from app.utils import memory
 from app.utils.time import init_time
@@ -27,6 +28,7 @@ class SplashScreen(Screen):
         self._next_screen = MainMenuScreen
         self._delay = config.SPLASH_DELAY
         self._net_service = NetworkService()
+        self._mqtt_service = MqttService()
 
         # UI widgets
         # Logo
@@ -58,6 +60,11 @@ class SplashScreen(Screen):
     def after_open(self):
         asyncio.create_task(self.initialize())
 
+    def msg_handler(self, topic, msg):
+        logger.info(
+            f"MQTT Message received on topic: {topic.decode()} with message: {msg.decode()}"
+        )
+
     async def initialize(self):
         logger.info("Initializing WiFi...")
 
@@ -79,6 +86,13 @@ class SplashScreen(Screen):
             await self.display_message_async("Setting up")
             await asyncio.sleep(1)  # Give WiFi some time to initialize
             init_time()
+
+            logger.info("Initializing MQTT...")
+            self._mqtt_service.connect()
+            self._mqtt_service.add_message_handler(self.msg_handler)
+            self._mqtt_service.subscribe_topic("fermento/#")
+            self._mqtt_service.disconnect()
+
             await self.display_message_async("Welcome")
             await asyncio.sleep(self._delay)
             Screen.change(self._next_screen)
