@@ -1,6 +1,8 @@
 from app.views.base import BaseView
 from typing import Any
 
+from lib.pubsub.pubsub import Publisher, Subscriber
+
 from lib.gui.core.colors import BLACK, WHITE
 from lib.gui.core.ugui import ssd
 from lib.gui.widgets.bitmap import BitMap
@@ -9,10 +11,12 @@ from lib.gui.core.writer import Writer
 import lib.gui.fonts.arial10 as arial10
 
 
-class SplashView(BaseView):
+class SplashView(BaseView, Subscriber):
     def __init__(self):
         self._writer = Writer(ssd, arial10, verbose=False)
         super().__init__(self._writer)
+        Publisher.subscribe(self, "splash_message")
+
         self._create_controls()
 
     def _create_controls(self) -> None:
@@ -53,3 +57,6 @@ class SplashView(BaseView):
 
     def on_navigated_to(self) -> None:
         pass
+
+    def on_message_received(self, message):
+        self._set_value(self._lbl_msg, message)

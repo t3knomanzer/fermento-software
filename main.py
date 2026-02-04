@@ -1,7 +1,3 @@
-import sys
-
-sys.path.insert(0, "src")
-
 import config
 from app.services import log
 
@@ -17,7 +13,6 @@ app_viewmodel = None
 
 
 def main():
-    logger.info("Starting app...")
     app_viewmodel = ApplicationViewmodel()
     app_viewmodel.start()
 
