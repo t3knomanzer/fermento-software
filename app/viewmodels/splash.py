@@ -1,11 +1,12 @@
-
 from app.viewmodels.base import BaseViewmodel
 import config
+from lib.pubsub.pubsub import Publisher, Subscriber
 
 
-class SplashViewmodel(BaseViewmodel):
+class SplashViewmodel(BaseViewmodel, Subscriber):
     def __init__(self):
         super().__init__()
+        Publisher.subscribe(self, "splash_message")
         self._splash_message = ""
 
     @property
@@ -14,7 +15,10 @@ class SplashViewmodel(BaseViewmodel):
 
     @splash_message.setter
     def splash_message(self, value: str) -> None:
-        print("Setting splash_message")
         if self._splash_message != value:
             self._splash_message = value
-            self.notify_property_changed("splash_message", value)
+            self._notify_property_changed("splash_message", value)
+
+    def on_message_received(self, message, topic):
+        if topic == "splash_message":
+            self.splash_message = message

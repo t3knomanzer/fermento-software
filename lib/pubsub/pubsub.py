@@ -16,9 +16,9 @@ class Publisher:
             return
 
         for subscriber in cls._subscribers[topic]:
-            subscriber.on_message_received(message)
+            subscriber.on_message_received(message, topic)
 
 
 class Subscriber:
-    def on_message_received(self, message):
+    def on_message_received(self, message, topic):
         raise NotImplementedError("Subclasses need to implement the receive method.")

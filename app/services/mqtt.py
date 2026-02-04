@@ -2,6 +2,7 @@ import asyncio
 import json
 import random
 import time
+import config
 import machine
 from app.utils.decorators import singleton
 from lib.umqtt.simple import MQTTClient, hexlify
@@ -9,21 +10,21 @@ from lib.umqtt.simple import MQTTClient, hexlify
 
 @singleton
 class MqttService:
-    def __init__(self, topic_prefix="fermento"):
+    def __init__(
+        self, server: str=config.MQTT_SERVER, port: int=config.MQTT_PORT, topic_prefix: str="fermento"
+    ):
         self._topic_prefix = topic_prefix
-        self._device_id = hexlify(machine.unique_id()).decode()
         self._message_handlers = []
         self._topics = []
         self._is_connected = False
-        self.client = MQTTClient(
-            client_id=self._device_id, server="192.168.8.5", port=1883
-        )
-        self.client.set_callback(self.message_handler)
+        self._device_id = hexlify(machine.unique_id()).decode()
+        self.client = MQTTClient(client_id=self._device_id, server=server, port=port)
+        self.client.set_callback(self._message_handler)
 
-    def get_topic(self, topic):
+    def _get_topic(self, topic):
         return f"{self._topic_prefix}/{self._device_id}/{topic}"
 
-    def message_handler(self, topic, msg):
+    def _message_handler(self, topic, msg):
         print(topic.decode(), msg.decode())
         for handler in self._message_handlers:
             handler(topic, msg)
@@ -36,7 +37,7 @@ class MqttService:
         if self._is_connected:
             self.client.subscribe(topic, qos=qos)
 
-    async def check_msg_async(self):
+    async def _check_msg_async(self):
         while self._is_connected:
             self.client.check_msg()
             await asyncio.sleep(0.5)
@@ -48,7 +49,7 @@ class MqttService:
         for topic in self._topics:
             self.client.subscribe(topic)
 
-        self._check_msg_task = asyncio.create_task(self.check_msg_async())
+        self._check_msg_task = asyncio.create_task(self._check_msg_async())
 
     def disconnect(self):
         self._is_connected = False
@@ -69,5 +70,5 @@ class MqttService:
         else:
             str_message = str(message)
 
-        print(f"Publishing to topic {self.get_topic(topic)}: {str_message}")
-        self.client.publish(self.get_topic(topic), str_message, qos=qos)
+        print(f"Publishing to topic {self._get_topic(topic)}: {str_message}")
+        self.client.publish(self._get_topic(topic), str_message, qos=qos)

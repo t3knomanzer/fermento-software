@@ -1,19 +1,67 @@
+from app.services.navigation import NavigationService
 from app.views.base import BaseView
 from typing import Any
 
-from lib.gui.core.ugui import ssd
+from app.views.settings import SettingsView
+from lib.gui.core.ugui import Widget, ssd
 from lib.gui.core.writer import Writer
 import lib.gui.fonts.arial10 as arial10
+from lib.gui.widgets.buttons import Button
 
 
 class MenuView(BaseView):
     def __init__(self):
+        super().__init__(None)
         self._writer = Writer(ssd, arial10, verbose=False)
-        super().__init__(self._writer)
         self._create_controls()
 
     def _create_controls(self) -> None:
-        pass
+        # UI widgets
+        btn_width = int(ssd.width / 1.5)
+        btn_height = self._writer.height + 4
+
+        # Measure button
+        row = (ssd.height // 2) - btn_height // 2 - btn_height - 4
+        col = ssd.width // 2 - btn_width // 2
+        btn_01 = Button(
+            self._writer,
+            row=row,
+            col=col,
+            width=btn_width,
+            height=btn_height,
+            text="Measure",
+            callback=self.navigate,
+            args=("Measure", None),
+        )
+
+        # Track button
+        row = ssd.height // 2 - btn_height // 2
+        btn_02 = Button(
+            self._writer,
+            row=row,
+            col=col,
+            width=btn_width,
+            height=btn_height,
+            text="Track",
+            callback=self.navigate,
+            args=("Track", None),
+        )
+
+        # Settings button
+        row = (ssd.height // 2) + btn_height // 2 + 4
+        btn_03 = Button(
+            self._writer,
+            row=row,
+            col=col,
+            width=btn_width,
+            height=btn_height,
+            text="Settings",
+            callback=self.navigate,
+            args=(SettingsView,),
+        )
+
+    def navigate(self, button: Widget, view: type):
+        NavigationService.navigate_to(view)
 
     def on_property_changed(self, name: str, value: Any) -> None:
         pass

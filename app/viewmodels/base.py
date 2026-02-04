@@ -15,8 +15,11 @@ class BaseViewmodel:
     def bind_view(self, view: "BaseView") -> None:
         self._views.append(view)
 
-    def notify_property_changed(self, property_name: str, property_value: Any) -> None:
+    def _notify_property_changed(self, property_name: str, property_value: Any) -> None:
         print("Notify property changed...")
         for view in self._views:
             print("Notifying view...")
             view.on_property_changed(property_name, property_value)
+
+    def on_control_changed(self, id: str, arg: Any) -> None:
+        raise NotImplementedError("Subclasses must implement on_control_changed method")

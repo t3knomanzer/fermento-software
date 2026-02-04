@@ -30,10 +30,9 @@ class BaseView(Screen):
             "Subclasses must implement on_property_changed method"
         )
 
-    async def _set_value_async(self, control: Widget, value: Any) -> None:
-        control.value(value)
-        await asyncio.sleep(0.1)
+    def _notify_control_changed(self, id: str, arg: Any) -> None:
+        if self._viewmodel:
+            self._viewmodel.on_control_changed(id, arg)
 
     def _set_value(self, control: Widget, value: Any) -> None:
         control.value(value)
-        asyncio.create_task(self._set_value_async(control, value))

@@ -33,7 +33,7 @@ class MyViewmodel(BaseViewmodel):
     @some_property.setter
     def some_property(self, value):
         self._some_property = value
-        self.notify_property_changed("some_property", value)
+        self._notify_property_changed("some_property", value)
 
 
 # Register the view and viewmodel

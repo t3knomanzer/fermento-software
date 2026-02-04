@@ -15,8 +15,6 @@ class SplashView(BaseView, Subscriber):
     def __init__(self):
         self._writer = Writer(ssd, arial10, verbose=False)
         super().__init__(self._writer)
-        Publisher.subscribe(self, "splash_message")
-
         self._create_controls()
 
     def _create_controls(self) -> None:
@@ -49,14 +47,10 @@ class SplashView(BaseView, Subscriber):
     def on_property_changed(self, name: str, value: Any) -> None:
         if name == "splash_message":
             print(f"Setting splash_message to {value}")
-            self._lbl_msg.value(text=value)
-            # self._set_value(self._lbl_msg, value)
+            self._set_value(self._lbl_msg, value)
 
     def on_navigated_from(self) -> None:
         pass
 
     def on_navigated_to(self) -> None:
         pass
-
-    def on_message_received(self, message):
-        self._set_value(self._lbl_msg, message)

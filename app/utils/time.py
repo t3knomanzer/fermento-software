@@ -2,7 +2,7 @@ from time import localtime, time
 from ntptime import settime
 
 
-def init_time():
+def set_ntp_time():
     try:
         settime()
         print(f"Ntp time set. Current time {now_str()} - {time()}")

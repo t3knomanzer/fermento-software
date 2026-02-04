@@ -7,7 +7,7 @@ from app.services.log import LogServiceManager
 from app.services.mqtt import MqttService
 from app.services.network import NetworkService
 from app.utils import memory
-from app.utils.time import init_time
+from app.utils.time import set_ntp_time
 from lib.gui.core.colors import BLACK, WHITE
 from lib.gui.core.ugui import Screen, ssd
 from lib.gui.widgets.bitmap import BitMap
@@ -80,7 +80,7 @@ class SplashScreen(Screen):
             logger.info("Setting up...")
             await self.display_message_async("Setting up")
             await asyncio.sleep(1)  # Give WiFi some time to initialize
-            init_time()
+            set_ntp_time()
 
             logger.info("Initializing MQTT...")
             self._mqtt_service.connect()
