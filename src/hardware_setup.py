@@ -32,7 +32,7 @@ logger.info("Importing SHT40 driver...")
 from drivers.sht4x import SHT4x
 
 logger.info("Importing gui...")
-from lib.gui.core.ugui import Display, Screen
+from src.lib.gui.core.ugui import Display, Screen
 
 memory.print_mem()
 

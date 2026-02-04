@@ -1,4 +1,4 @@
-import hardware_setup  # Create a display instance
+import hardware_setup as hardware_setup  # Create a display instance
 
 from gui.core.ugui import Screen, ssd
 from gui.core.writer import Writer

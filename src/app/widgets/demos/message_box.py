@@ -4,7 +4,7 @@
 # Copyright (c) 2021 Peter Hinch
 
 # hardware_setup must be imported before other modules because of RAM use.
-import hardware_setup  # Create a display instance
+import hardware_setup as hardware_setup  # Create a display instance
 from lib.gui.core.ugui import Screen, Window, ssd
 
 from lib.gui.widgets import Label, Button, CloseButton

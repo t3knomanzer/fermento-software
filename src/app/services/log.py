@@ -21,8 +21,9 @@ class LogServiceManager:
     _services = {}
     _level = INFO
 
+    @classmethod
     def _generate_filename(
-        root_name: str = "app", extension: str = ".log", max_files: int = 3
+        cls, root_name: str = "app", extension: str = ".log", max_files: int = 3
     ) -> str:
         for i in range(max_files):
             target_filename = f"{root_name}{i + 1}{extension}"
