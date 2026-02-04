@@ -1,3 +1,4 @@
+from typing import Optional
 from app.utils.pathing import file_exists
 from app.utils.time import now_str, ntp_is_set
 
@@ -93,7 +94,7 @@ class LogService:
                 f"Error writing log to file: {self._filename}, {e}", ERROR
             )
 
-    def log(self, message: str, level: int, name: str | None = None):
+    def log(self, message: str, level: int, name: Optional[str] = None):
         if level >= self._level:
             self._log_console(message, level, name)
             self._log_file(message, level, name)

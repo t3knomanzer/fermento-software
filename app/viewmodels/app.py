@@ -69,7 +69,7 @@ class ApplicationViewmodel(BaseViewmodel):
             self._mqtt_service.connect()
             self._mqtt_service.subscribe_topic("fermento/#")
         except OSError:
-            logger.critical(f"Error connecting to MQTT broker. {e}")
+            logger.critical(f"Error connecting to MQTT broker.")
             await self._update_splash("Service error!")
             return
 

@@ -1,3 +1,4 @@
+from app.services import log
 from app.views.base import BaseView
 from typing import Any
 
@@ -9,6 +10,8 @@ from lib.gui.widgets.bitmap import BitMap
 from lib.gui.widgets.label import Label
 from lib.gui.core.writer import Writer
 import lib.gui.fonts.arial10 as arial10
+
+logger = log.LogServiceManager.get_logger(name=__name__)
 
 
 class SplashView(BaseView, Subscriber):
@@ -46,11 +49,11 @@ class SplashView(BaseView, Subscriber):
 
     def on_property_changed(self, name: str, value: Any) -> None:
         if name == "splash_message":
-            print(f"Setting splash_message to {value}")
+            logger.info(f"Setting splash_message to {value}")
             self._set_value(self._lbl_msg, value)
 
     def on_navigated_from(self) -> None:
-        pass
+        logger.debug(f"Navigated from SplashView")
 
     def on_navigated_to(self) -> None:
-        pass
+        logger.debug(f"Navigated to SplashView")

@@ -1,6 +1,9 @@
 from typing import Optional
+from app.services import log
 from app.viewmodels.base import BaseViewmodel
 from app.views.base import BaseView
+
+logger = log.LogServiceManager.get_logger(name=__name__)
 
 
 class ApplicationService:
@@ -11,6 +14,7 @@ class ApplicationService:
         cls, view_class: type, viewmodel_class: type, reuse_instance: bool = True
     ) -> BaseView:
         if view_class in cls._view_type_instance_map and reuse_instance:
+            logger.debug(f"Reusing instance of class {view_class.__name__}")
             return cls._view_type_instance_map[view_class]
 
         viewmodel: BaseViewmodel = viewmodel_class()

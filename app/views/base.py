@@ -1,10 +1,13 @@
 import asyncio
 from typing import TYPE_CHECKING, Any, Optional
+from app.services import log
 from lib.gui.core.ugui import Screen, Widget
 from lib.gui.widgets.label import Label
 
 if TYPE_CHECKING:
     from app.viewmodels.base import BaseViewmodel
+
+logger = log.LogServiceManager.get_logger(name=__name__)
 
 
 class BaseView(Screen):
@@ -30,9 +33,13 @@ class BaseView(Screen):
             "Subclasses must implement on_property_changed method"
         )
 
-    def _notify_control_changed(self, id: str, arg: Any) -> None:
+    def _notify_control_changed(
+        self, widget: Optional[Widget], id: str, arg: Any
+    ) -> None:
+        logger.debug(f"Nofity control changed id={id} arg={arg}")
         if self._viewmodel:
             self._viewmodel.on_control_changed(id, arg)
 
     def _set_value(self, control: Widget, value: Any) -> None:
+        logger.debug(f"Set control value for {control.__class__} value={value}")
         control.value(value)

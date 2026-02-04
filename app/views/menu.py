@@ -1,3 +1,4 @@
+from app.services import log
 from app.services.navigation import NavigationService
 from app.views.base import BaseView
 from typing import Any
@@ -7,6 +8,8 @@ from lib.gui.core.ugui import Widget, ssd
 from lib.gui.core.writer import Writer
 import lib.gui.fonts.arial10 as arial10
 from lib.gui.widgets.buttons import Button
+
+logger = log.LogServiceManager.get_logger(name=__name__)
 
 
 class MenuView(BaseView):
@@ -67,7 +70,7 @@ class MenuView(BaseView):
         pass
 
     def on_navigated_from(self) -> None:
-        pass
+        logger.debug("Navigated from MenuView")
 
     def on_navigated_to(self) -> None:
-        pass
+        logger.debug("Navigated to MenuView")

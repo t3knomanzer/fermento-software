@@ -1,6 +1,8 @@
+from app.services import log
 from app.viewmodels.base import BaseViewmodel
-import config
 from lib.pubsub.pubsub import Publisher, Subscriber
+
+logger = log.LogServiceManager.get_logger(name=__name__)
 
 
 class SplashViewmodel(BaseViewmodel, Subscriber):
