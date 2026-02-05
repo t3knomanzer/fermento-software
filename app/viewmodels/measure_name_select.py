@@ -1,6 +1,8 @@
 from typing import Any, Optional
 from app.framework.pubsub import Publisher
 from app.services import log
+from app.services.container import ContainerService
+from app.services.state import AppStateService
 from app.viewmodels.base import BaseViewmodel
 import config
 import random
@@ -18,6 +20,9 @@ class MeasureNameSelectViewmodel(BaseViewmodel):
         super().__init__()
         self._choices: set[str] = set()
         self._choice: Optional[str] = None
+        self._app_state_service: AppStateService = ContainerService.get_instance(
+            AppStateService
+        )
 
     @property
     def choices(self):
@@ -40,5 +45,5 @@ class MeasureNameSelectViewmodel(BaseViewmodel):
         choice = kwargs.get("choice", None)
         if choice:
             logger.info(f"Received picked choice: {choice}")
-            Publisher.publish(choice, topic=self.TOPIC_CHOICE_SELECTED)
+            self._app_state_service.selected_name = choice
             self._choice = choice
