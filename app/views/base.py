@@ -1,8 +1,6 @@
-import asyncio
 from typing import TYPE_CHECKING, Any, Optional
 from app.services import log
 from lib.gui.core.ugui import Screen, Widget
-from lib.gui.widgets.label import Label
 
 if TYPE_CHECKING:
     from app.viewmodels.base import BaseViewmodel
@@ -11,8 +9,8 @@ logger = log.LogServiceManager.get_logger(name=__name__)
 
 
 class BaseView(Screen):
-    def __init__(self, writer):
-        super().__init__(writer)
+    def __init__(self, writer, *args, **kwargs):
+        super().__init__(writer, *args, **kwargs)
         self._viewmodel: Optional["BaseViewmodel"] = None
 
     @property
@@ -23,23 +21,17 @@ class BaseView(Screen):
         self._viewmodel = viewmodel
 
     def on_navigated_from(self):
-        raise NotImplementedError("Subclasses must implement on_navigated_from method")
+        pass
 
-    def on_navigated_to(self):
-        raise NotImplementedError("Subclasses must implement on_navigated_to method")
+    def on_navigated_to(self, **kwargs):
+        pass
 
-    def on_property_changed(self, property_name: str, property_value: Any):
-        raise NotImplementedError(
-            "Subclasses must implement on_property_changed method"
-        )
+    def on_viewmodel_value_changed(self, **kwargs):
+        pass
 
-    def _notify_control_changed(
-        self, widget: Optional[Widget], id: str, arg: Any
-    ) -> None:
-        logger.debug(f"Nofity control changed id={id} arg={arg}")
+    def _notify_value_changed(self, **kwargs):
         if self._viewmodel:
-            self._viewmodel.on_control_changed(id, arg)
+            self._viewmodel.on_view_value_changed(**kwargs)
 
-    def _set_value(self, control: Widget, value: Any) -> None:
-        logger.debug(f"Set control value for {control.__class__} value={value}")
+    def _set_control_value(self, control: Widget, value: Any) -> None:
         control.value(value)

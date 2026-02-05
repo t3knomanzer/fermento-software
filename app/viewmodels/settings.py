@@ -17,6 +17,6 @@ class SettingsViewmodel(BaseViewmodel):
     def _reset_settings(self):
         logger.info("Reset settings...")
         try:
-            os.remove("/wifi.dat")
+            os.remove("wifi.dat")
         except OSError as e:
             logger.error(f"Delete failed: {e}")

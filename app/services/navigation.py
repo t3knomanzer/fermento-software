@@ -1,7 +1,11 @@
-from typing import Optional
-from app.services.app import ApplicationService
+from typing import Any, Optional
+from app.services.container import ContainerService
 from app.views.base import BaseView
 from lib.gui.core.ugui import Screen, ssd
+
+
+class Navigable:
+    pass
 
 
 class NavigationService:
@@ -9,11 +13,11 @@ class NavigationService:
     current_view_ins: Optional[BaseView] = None
 
     @classmethod
-    def navigate_to(cls, view_class: type) -> None:
+    def navigate_to(cls, view_class: type, **kwargs) -> None:
         if cls.current_view_ins is not None:
             cls.current_view_ins.on_navigated_from()
 
-        current_view_inst = ApplicationService.get_view(view_class)
+        current_view_inst = ContainerService.get_instance(view_class)
         if not current_view_inst:
             raise KeyError(
                 f"View instance doesn't exist for class {view_class.__name__}"
@@ -21,7 +25,7 @@ class NavigationService:
 
         cls.previous_view_ins = cls.current_view_ins
         cls.current_view_ins = current_view_inst
-        cls.current_view_ins.on_navigated_to()
+        cls.current_view_ins.on_navigated_to(**kwargs) # type: ignore
         Screen.change(cls.current_view_ins, mode=0)
 
     @classmethod

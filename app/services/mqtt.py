@@ -8,10 +8,12 @@ from app.utils.decorators import singleton
 from lib.umqtt.simple import MQTTClient, hexlify
 
 
-@singleton
 class MqttService:
     def __init__(
-        self, server: str=config.MQTT_SERVER, port: int=config.MQTT_PORT, topic_prefix: str="fermento"
+        self,
+        server: str = config.MQTT_SERVER,
+        port: int = config.MQTT_PORT,
+        topic_prefix: str = "fermento",
     ):
         self._topic_prefix = topic_prefix
         self._message_handlers = []

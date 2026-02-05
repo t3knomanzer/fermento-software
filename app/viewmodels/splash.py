@@ -1,26 +1,22 @@
+from app.framework.observer import Observable
 from app.services import log
 from app.viewmodels.base import BaseViewmodel
-from lib.pubsub.pubsub import Publisher, Subscriber
+from app.framework.pubsub import Publisher, Subscriber
 
 logger = log.LogServiceManager.get_logger(name=__name__)
 
 
-class SplashViewmodel(BaseViewmodel, Subscriber):
+class SplashViewmodel(BaseViewmodel):
     def __init__(self):
-        super().__init__()
-        Publisher.subscribe(self, "splash_message")
-        self._splash_message = ""
+        BaseViewmodel.__init__(self)
+        self._message = ""
 
     @property
-    def splash_message(self) -> str:
-        return self._splash_message
+    def message(self) -> str:
+        return self._message
 
-    @splash_message.setter
-    def splash_message(self, value: str) -> None:
-        if self._splash_message != value:
-            self._splash_message = value
-            self._notify_property_changed("splash_message", value)
-
-    def on_message_received(self, message, topic):
-        if topic == "splash_message":
-            self.splash_message = message
+    @message.setter
+    def message(self, value: str) -> None:
+        if self._message != value:
+            self._message = value
+            self._notify_value_changed(message=value)

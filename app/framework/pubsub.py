@@ -1,3 +1,6 @@
+from typing import Any
+
+
 class Publisher:
     _subscribers: dict[str, list["Subscriber"]] = {}
 
@@ -10,7 +13,7 @@ class Publisher:
             cls._subscribers[topic].append(subscriber)
 
     @classmethod
-    def publish(cls, message: str, topic: str):
+    def publish(cls, message: Any, topic: str):
         if topic not in cls._subscribers:
             print(f"There are no subscribers to topic {topic}")
             return

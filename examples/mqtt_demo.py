@@ -1,6 +1,6 @@
 import sys
 from app.views.base import BaseView
-from app.services.app import ApplicationService
+from app.services.container import ContainerService
 from app.viewmodels.base import BaseViewmodel
 from typing import Any
 
@@ -37,10 +37,10 @@ class MyViewmodel(BaseViewmodel):
 
 
 # Register the view and viewmodel
-ApplicationService.register(MyView, MyViewmodel)
+ContainerService.register(MyView, MyViewmodel)
 
 # Create an instance of the view (which will also create and bind the viewmodel)
-view = ApplicationService.create_view(MyView)
+view = ContainerService.create_instance(MyView)
 
 # Example of changing a property in the viewmodel
 viewmodel = view.viewmodel  # Access the bound viewmodel

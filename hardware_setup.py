@@ -22,8 +22,8 @@ led.write()
 logger.info("Importing SSD1306 driver...")
 from drivers.ssd1306 import SSD1306_I2C as SSD
 
-logger.info("Importing VL53L4CD driver...")
-from drivers.vl53l4cd import VL53L4CD
+# logger.info("Importing VL53L4CD driver...")
+# from drivers.vl53l4cd import VL53L4CD
 
 logger.info("Importing SCD4X driver...")
 from drivers.scd4x import SCD4X
@@ -57,20 +57,20 @@ if ssd is None:
     logger.critical("Couldn't create SSD.")
     sys.exit()
 
-logger.info("Creating TOF sensor...")
-tof_sensor = None
-retries = 3
-while not tof_sensor and retries > 0:
-    try:
-        tof_sensor = VL53L4CD(i2c_bus)
-    except Exception as e:
-        logger.error(f"({retries}) Error creating TOF sensor. {e}")
-        retries -= 1
-        time.sleep(1)
+# logger.info("Creating TOF sensor...")
+# tof_sensor = None
+# retries = 3
+# while not tof_sensor and retries > 0:
+#     try:
+#         tof_sensor = VL53L4CD(i2c_bus)
+#     except Exception as e:
+#         logger.error(f"({retries}) Error creating TOF sensor. {e}")
+#         retries -= 1
+#         time.sleep(1)
 
-if tof_sensor is None:
-    logger.critical("Couldn't create TOF sensor.")
-    sys.exit()
+# if tof_sensor is None:
+#     logger.critical("Couldn't create TOF sensor.")
+#     sys.exit()
 
 logger.info("Creating SCD41 sensor...")
 sdc41 = SCD4X(i2c_bus)

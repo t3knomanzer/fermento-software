@@ -55,7 +55,7 @@ class SettingsView(BaseView):
         pass
 
     def on_navigated_from(self) -> None:
-        logger.debug("Navigated from MenuView")
+        logger.debug("Navigated from SettingsView")
 
     def on_navigated_to(self) -> None:
-        logger.debug("Navigated to MenuView")
+        logger.debug("Navigated to SettingsView")

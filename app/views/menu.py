@@ -3,7 +3,6 @@ from app.services.navigation import NavigationService
 from app.views.base import BaseView
 from typing import Any
 
-from app.views.settings import SettingsView
 from lib.gui.core.ugui import Widget, ssd
 from lib.gui.core.writer import Writer
 import lib.gui.fonts.arial10 as arial10
@@ -24,6 +23,8 @@ class MenuView(BaseView):
         btn_height = self._writer.height + 4
 
         # Measure button
+        from app.views.measure_name_select import MeasureNameSelectView
+
         row = (ssd.height // 2) - btn_height // 2 - btn_height - 4
         col = ssd.width // 2 - btn_width // 2
         btn_01 = Button(
@@ -33,8 +34,8 @@ class MenuView(BaseView):
             width=btn_width,
             height=btn_height,
             text="Measure",
-            callback=self.navigate,
-            args=("Measure", None),
+            callback=self._navigate_callback,
+            args=(MeasureNameSelectView,),
         )
 
         # Track button
@@ -46,11 +47,13 @@ class MenuView(BaseView):
             width=btn_width,
             height=btn_height,
             text="Track",
-            callback=self.navigate,
+            callback=self._navigate_callback,
             args=("Track", None),
         )
 
         # Settings button
+        from app.views.settings import SettingsView
+
         row = (ssd.height // 2) + btn_height // 2 + 4
         btn_03 = Button(
             self._writer,
@@ -59,15 +62,12 @@ class MenuView(BaseView):
             width=btn_width,
             height=btn_height,
             text="Settings",
-            callback=self.navigate,
+            callback=self._navigate_callback,
             args=(SettingsView,),
         )
 
-    def navigate(self, button: Widget, view: type):
+    def _navigate_callback(self, button: Widget, view: type):
         NavigationService.navigate_to(view)
-
-    def on_property_changed(self, name: str, value: Any) -> None:
-        pass
 
     def on_navigated_from(self) -> None:
         logger.debug("Navigated from MenuView")
