@@ -28,8 +28,8 @@ from drivers.ssd1306 import SSD1306_I2C as SSD
 logger.info("Importing SCD4X driver...")
 from drivers.scd4x import SCD4X
 
-logger.info("Importing SHT40 driver...")
-from drivers.sht4x import SHT4x
+# logger.info("Importing SHT40 driver...")
+# from drivers.sht4x import SHT4x
 
 logger.info("Importing gui...")
 from lib.gui.core.ugui import Display, Screen
@@ -75,8 +75,8 @@ if ssd is None:
 logger.info("Creating SCD41 sensor...")
 sdc41 = SCD4X(i2c_bus)
 
-logger.info("Creating SHT40 sensor...")
-sht40 = SHT4x(i2c_bus)
+# logger.info("Creating SHT40 sensor...")
+# sht40 = SHT4x(i2c_bus)
 
 logger.info("Creating button pins...")
 btn_nxt = Pin(41, Pin.IN, Pin.PULL_UP)

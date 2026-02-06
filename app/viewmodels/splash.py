@@ -1,7 +1,6 @@
 from app.framework.observer import Observable
 from app.services import log
 from app.viewmodels.base import BaseViewmodel
-from app.framework.pubsub import Publisher, Subscriber
 
 logger = log.LogServiceManager.get_logger(name=__name__)
 

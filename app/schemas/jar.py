@@ -1,8 +1,25 @@
-class JarSchema:
+from app.schemas.base import BaseSchema
 
-    def __init__(self, name, distance):
-        self.name = name
-        self.distance = distance
 
-    def to_dict(self):
-        return {"name": self.name, "distance": self.distance}
+class JarSchema(BaseSchema):
+    """
+    Schema for jar data validation.
+    """
+
+    schema: tuple[int, int, int]
+    device_id: str
+    message_id: str
+    timestamp: str
+    name: str
+    height: float
+
+    @classmethod
+    def _get_fields(cls) -> list[str]:
+        return [
+            "schema",
+            "device_id",
+            "message_id",
+            "timestamp",
+            "name",
+            "height",
+        ]

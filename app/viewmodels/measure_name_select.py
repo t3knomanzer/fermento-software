@@ -45,5 +45,5 @@ class MeasureNameSelectViewmodel(BaseViewmodel):
         choice = kwargs.get("choice", None)
         if choice:
             logger.info(f"Received picked choice: {choice}")
-            self._app_state_service.selected_name = choice
+            self._app_state_service.selected_jar_name = choice
             self._choice = choice

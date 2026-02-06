@@ -76,15 +76,22 @@ class DistanceSensor:
             logger.critical("Couldn't create distance sensor.")
 
     def start(self) -> None:
-        if self._sensor:
-            self._sensor.start_ranging()
-            self._ranging_task = asyncio.create_task(self._range_async())
-        else:
-            logger.error("Distance sensor doesn't exist.")
+        if not self._sensor:
+            logger.error("Sensor not initialized")
+            return
+
+        if self._ranging_task and not self._ranging_task.done():
+            logger.warning("Ranging task already running")
+            return
+
+        self._sensor.start_ranging()
+        self._ranging_task = asyncio.create_task(self._range_async())
 
     def stop(self) -> None:
         if self._ranging_task:
             self._ranging_task.cancel()
+            self._ranging_task = None
+
         if self._sensor:
             self._sensor.stop_ranging()
 

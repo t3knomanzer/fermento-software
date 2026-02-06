@@ -3,6 +3,7 @@ from app.services.navigation import NavigationService
 from app.views.base import BaseView
 from typing import Any
 
+from app.views.track_feeding_select import TrackFeedingSelectView
 from lib.gui.core.ugui import Widget, ssd
 from lib.gui.core.writer import Writer
 import lib.gui.fonts.arial10 as arial10
@@ -48,7 +49,7 @@ class MenuView(BaseView):
             height=btn_height,
             text="Track",
             callback=self._navigate_callback,
-            args=("Track", None),
+            args=(TrackFeedingSelectView,),
         )
 
         # Settings button

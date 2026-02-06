@@ -2,10 +2,13 @@ import asyncio
 import json
 import random
 import time
+from app.services import log
 import config
 import machine
 from app.utils.decorators import singleton
 from lib.umqtt.simple import MQTTClient, hexlify
+
+logger = log.LogServiceManager.get_logger(name=__name__)
 
 
 class MqttService:
@@ -27,16 +30,16 @@ class MqttService:
         return f"{self._topic_prefix}/{self._device_id}/{topic}"
 
     def _message_handler(self, topic, msg):
-        print(topic.decode(), msg.decode())
+        logger.debug(f"MQTT message received on topic {topic}: {msg}")
         for handler in self._message_handlers:
-            handler(topic, msg)
+            handler(msg.decode(), topic.decode())
 
     def add_message_handler(self, handler):
         self._message_handlers.append(handler)
 
     def subscribe_topic(self, topic, qos=0):
-        self._topics.append(topic)
         if self._is_connected:
+            self._topics.append(topic)
             self.client.subscribe(topic, qos=qos)
 
     async def _check_msg_async(self):
@@ -71,6 +74,4 @@ class MqttService:
             str_message = json.dumps(message)
         else:
             str_message = str(message)
-
-        print(f"Publishing to topic {self._get_topic(topic)}: {str_message}")
         self.client.publish(self._get_topic(topic), str_message, qos=qos)

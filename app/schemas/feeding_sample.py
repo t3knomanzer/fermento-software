@@ -1,27 +1,31 @@
-class FeedingSampleSchema:
+from app.schemas.base import BaseSchema
+
+
+class FeedingSampleSchema(BaseSchema):
     """
-    Schema for feeding sample data validation.
+    Schema for telemetry data validation.
     """
 
-    def __init__(
-        self,
-        feeding_event_id: int,
-        temperature: float,
-        humidity: float,
-        co2: float,
-        distance: float,
-    ) -> None:
-        self.feeding_event_id: int = feeding_event_id
-        self.temperature: float = temperature
-        self.humidity: float = humidity
-        self.co2: float = co2
-        self.distance: float = distance
+    schema: tuple[int, int, int]
+    device_id: str
+    message_id: str
+    timestamp: str
+    feeding_event_id: int
+    temperature: float
+    humidity: float
+    co2: float
+    distance: float
 
-    def to_dict(self):
-        return {
-            "feeding_event_id": self.feeding_event_id,
-            "temperature": self.temperature,
-            "humidity": self.humidity,
-            "co2": self.co2,
-            "distance": self.distance,
-        }
+    @classmethod
+    def _get_fields(cls) -> list[str]:
+        return [
+            "schema",
+            "device_id",
+            "message_id",
+            "timestamp",
+            "feeding_event_id",
+            "temperature",
+            "humidity",
+            "co2",
+            "distance",
+        ]

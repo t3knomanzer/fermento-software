@@ -11,14 +11,11 @@ EXCLUDE_DIRS = {
     ".git",
     ".venv",
     "__pycache__",
-    ".firmware",
-    "lib",
-    "_lib",
-    "drivers",
-    "_drivers",
-    "sandbox",
+    "examples",
     "tools",
     "firmware",
+    "dev",
+    "demos",
 }
 # ------------------------
 

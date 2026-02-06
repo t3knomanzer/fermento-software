@@ -1,3 +1,7 @@
+import sys
+
+sys.path.insert(0, "lib/typing")
+
 import config
 from app.services import log
 
@@ -5,8 +9,6 @@ from app.services import log
 log.LogServiceManager.initialize(level=log.DEBUG, max_files=config.LOG_MAX_FILES)
 logger = log.LogServiceManager.get_logger(name=__name__)
 
-import hardware_setup
-from typing import cast
 from app.viewmodels.app import ApplicationViewmodel
 
 app_viewmodel = None
