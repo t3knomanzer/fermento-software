@@ -30,7 +30,6 @@ class MqttService:
         return f"{self._topic_prefix}/{self._device_id}/{topic}"
 
     def _message_handler(self, topic, msg):
-        logger.debug(f"MQTT message received on topic {topic}: {msg}")
         for handler in self._message_handlers:
             handler(msg.decode(), topic.decode())
 

@@ -32,14 +32,14 @@ class TrackFermentationView(BaseView):
 
         # Bottom center (distance)
         col = ssd.width // 3
-        self._distance_lbl = Label(
-            self._small_writer, row=row, col=col, text=width, justify=Label.CENTRE
-        )
-        self._distance_lbl.value("0mm")
-        # self._co2_lbl = Label(
+        # self._distance_lbl = Label(
         #     self._small_writer, row=row, col=col, text=width, justify=Label.CENTRE
         # )
-        # self._co2_lbl.value("0ppm")
+        # self._distance_lbl.value("0mm")
+        self._co2_lbl = Label(
+            self._small_writer, row=row, col=col, text=width, justify=Label.CENTRE
+        )
+        self._co2_lbl.value("0ppm")
 
         # Bottom right (humidity)
         col = ssd.width // 3 * 2
@@ -72,7 +72,7 @@ class TrackFermentationView(BaseView):
         self._starter_lbl = Label(
             self._small_writer, row=row, col=2, text=width, justify=Label.LEFT
         )
-        self._starter_lbl.value("Starter")
+        self._starter_lbl.value("")
 
         # Top center  (time elapsed)
         col = ssd.width // 3
@@ -84,12 +84,12 @@ class TrackFermentationView(BaseView):
         # Top right (jar name)
         col = ssd.width // 3 * 2
         self._jar_lbl = Label(self._small_writer, row=row, col=col, text=width, justify=Label.RIGHT)
-        self._jar_lbl.value("Jar")
+        self._jar_lbl.value("")
 
     def on_viewmodel_value_changed(self, **kwargs):
-        distance = kwargs.get("distance", None)
-        if distance is not None:
-            self._set_control_value(self._distance_lbl, str(distance))
+        # distance = kwargs.get("distance", None)
+        # if distance is not None:
+        #     self._set_control_value(self._distance_lbl, str(distance))
 
         trh = kwargs.get("trh", None)
         if trh is not None:
@@ -97,6 +97,18 @@ class TrackFermentationView(BaseView):
             humidity = trh.get("rh", 0.0)
             self._set_control_value(self._temperature_lbl, f"{temperature:.1f}C")
             self._set_control_value(self._rh_lbl, f"{humidity:.1f}%")
+
+        if "co2" in kwargs:
+            co2 = kwargs.get("co2", 0)
+            self._set_control_value(self._co2_lbl, f"{co2}ppm")
+
+        jar_name = kwargs.get("jar_name", None)
+        if jar_name is not None:
+            self._set_control_value(self._jar_lbl, jar_name)
+
+        starter_name = kwargs.get("starter_name", None)
+        if starter_name is not None:
+            self._set_control_value(self._starter_lbl, starter_name)
 
     def on_navigated_from(self) -> None:
         logger.debug("Navigated from MeasureDistanceView")

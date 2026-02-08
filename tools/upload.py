@@ -4,7 +4,18 @@ from typing import Iterable
 
 ROOT = Path(__file__).resolve().parent.parent
 
-EXCLUDE_DIRS = {".git", ".venv", "__pycache__", "examples", "tools", "firmware", "dev", "demos"}
+EXCLUDE_DIRS = {
+    ".git",
+    ".venv",
+    "__pycache__",
+    "examples",
+    "tools",
+    "firmware",
+    "dev",
+    "demos",
+    "_drivers",
+    "_lib",
+}
 
 INCLUDE_EXTENSIONS = {".mpy", ".css", ".xbm", ".dat"}
 
@@ -13,10 +24,12 @@ FORCE_FILES = [
     ("main.py", ":/main.py"),
     ("boot.py", ":/boot.py"),
     ("lib/typing/typing.mpy", ":typing.mpy"),
+    ("_lib/typing/typing.mpy", ":typing.mpy"),
     ("lib/typing/typing_extensions.mpy", ":typing_extensions.mpy"),
+    ("_lib/typing/typing_extensions.mpy", ":typing_extensions.mpy"),
 ]
 
-MPREMOTE = ["mpremote"]
+MPREMOTE = []
 
 
 def run_cmd(cmd: list[str], *, allow_fail: bool = False) -> subprocess.CompletedProcess:

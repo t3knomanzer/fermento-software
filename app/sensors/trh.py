@@ -1,5 +1,6 @@
 import asyncio
 from typing import Any, Callable, Optional
+from app.sensors.base import BaseSensor
 from app.services import log
 import config
 from drivers.sht4x import SHT4x, Mode
@@ -10,21 +11,17 @@ from app.framework.pubsub import Publisher
 logger = log.LogServiceManager.get_logger(name=__name__)
 
 
-class TRHSensor:
+class TRHSensor(BaseSensor):
     TOPIC_ROOT = "trh_sensor"
-    TOPIC_DATA = f"{TOPIC_ROOT}/data"
-
-    FREQUENCY_LOW = 1
-    FREQUENCY_MED = 5
-    FREQUENCY_HIGH = 33
-    FREQUENCY_VERY_HIGH = 100
+    TOPIC_TRH = f"{TOPIC_ROOT}/trh"
 
     def __init__(self) -> None:
-        logger.info("Initializing distance sensor...")
+        super().__init__()
+        logger.info("Initializing TRH sensor...")
         self._sensor: Optional[SHT4x] = None
         self._i2c: Optional[I2C] = None
         self._measure_task: Optional[asyncio.Task] = None
-        self._frequency: int = TRHSensor.FREQUENCY_LOW
+        self._frequency: float = BaseSensor.FREQUENCY_HIGH
         self._trh: dict[str, Any] = {"t": 0.0, "rh": 0.0}
 
         self._setup_i2c()
@@ -38,7 +35,7 @@ class TRHSensor:
     def trh(self, value: dict[str, Any]):
         if self._trh != value:
             self._trh = value
-            Publisher.publish(value, topic=self.TOPIC_DATA)
+            Publisher.publish(value, topic=self.TOPIC_TRH)
 
     def _setup_i2c(self) -> None:
         self._i2c = I2C(0, sda=Pin(45), scl=Pin(47))
@@ -69,7 +66,9 @@ class TRHSensor:
             logger.error("Sensor not initialized")
             return
 
+        logger.info("Starting TRH read loop...")
         while True:
             t, rh = self._sensor.measurements  # type: ignore
+            logger.debug(f"Reading TRH sensor data: Temperature={t}C, Humidity={rh}%")
             self.trh = {"t": t, "rh": rh}
             await asyncio.sleep(1 / self._frequency)

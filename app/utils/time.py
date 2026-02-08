@@ -2,7 +2,7 @@ from time import localtime, time
 from ntptime import settime
 
 
-def set_ntp_time():
+def setup_ntp_time():
     try:
         settime()
         print(f"Ntp time set. Current time {now_str()} - {time()}")
@@ -18,9 +18,7 @@ def now():
 
 def now_str():
     t = localtime()
-    return "{:04d}-{:02d}-{:02d} {:02d}:{:02d}:{:02d}".format(
-        t[0], t[1], t[2], t[3], t[4], t[5]
-    )
+    return "{:04d}-{:02d}-{:02d} {:02d}:{:02d}:{:02d}".format(t[0], t[1], t[2], t[3], t[4], t[5])
 
 
 def ntp_is_set():

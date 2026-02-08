@@ -1,5 +1,6 @@
 import asyncio
 from typing import Optional, cast
+from app.sensors.co2 import CO2Sensor
 from app.sensors.distance import DistanceSensor
 from app.sensors.trh import TRHSensor
 from app.services import log
@@ -8,7 +9,7 @@ from app.services.mqtt import MqttService
 from app.services.navigation import NavigationService
 from app.services.network import NetworkService
 from app.services.state import AppStateService
-from app.utils.time import set_ntp_time
+from app.utils.time import setup_ntp_time
 from app.viewmodels.base import BaseViewmodel
 from app.viewmodels.measure_distance import MeasureDistanceViewmodel
 from app.viewmodels.measure_name_select import MeasureNameSelectViewmodel
@@ -78,6 +79,7 @@ class ApplicationViewmodel(BaseViewmodel):
         # Sensors
         ContainerService.register_type(DistanceSensor)
         ContainerService.register_type(TRHSensor)
+        ContainerService.register_type(CO2Sensor)
 
     def _bind_views_viewmodels(self) -> None:
         self._bind_view_viewmodel(SplashView, SplashViewmodel)
@@ -137,7 +139,7 @@ class ApplicationViewmodel(BaseViewmodel):
     async def _init_time(self) -> bool:
         await self._set_splash_message_async("Syncing time...")
         # NTP sync is fire-and-forget in this environment
-        set_ntp_time()
+        setup_ntp_time()
         return True
 
     async def _init_mqtt_async(self) -> bool:

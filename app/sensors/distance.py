@@ -1,6 +1,7 @@
 import asyncio
 import sys
 from typing import Any, Callable, Optional
+from app.sensors.base import BaseSensor
 from app.services import log
 from app.utils.decorators import singleton
 import config
@@ -12,7 +13,7 @@ from app.framework.pubsub import Publisher
 logger = log.LogServiceManager.get_logger(name=__name__)
 
 
-class DistanceSensor:
+class DistanceSensor(BaseSensor):
     TOPIC_ROOT = "distance_sensor"
     TOPIC_DISTANCE = f"{TOPIC_ROOT}/distance"
 
@@ -20,19 +21,15 @@ class DistanceSensor:
     TIMING_BALANCED = 33
     TIMING_HIGH_QUALITY = 200
 
-    FREQUENCY_LOW = 1
-    FREQUENCY_MED = 5
-    FREQUENCY_HIGH = 33
-    FREQUENCY_VERY_HIGH = 100
-
     def __init__(self) -> None:
+        super().__init__()
         logger.info("Initializing distance sensor...")
         self._sensor: Optional[VL53L4CD] = None
         self._timing_budget: int = config.SENSOR_DISTANCE_TIMING_BUDGET
         self._distance: int = 0
         self._ranging_task: Optional[asyncio.Task] = None
         self._i2c: Optional[I2C] = None
-        self._frequency: int = DistanceSensor.FREQUENCY_HIGH
+        self._frequency: float = BaseSensor.FREQUENCY_HIGH
 
         self._setup_i2c()
         self._setup_sensor()
@@ -96,9 +93,14 @@ class DistanceSensor:
             self._sensor.stop_ranging()
 
     async def _range_async(self) -> None:
-        logger.debug("Ranging...")
+        if not self._sensor:
+            logger.error("Sensor not initialized")
+            return
+
+        logger.info("Starting distance read loop...")
         while True:
             self.distance = self._sample_average()
+            logger.debug(f"Reading distance sensor data: {self.distance} mm")
             await asyncio.sleep(1 / self._frequency)
 
     def _sample_average(self, num_samples: int = 3) -> int:
