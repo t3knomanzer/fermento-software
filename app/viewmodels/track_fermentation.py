@@ -1,8 +1,7 @@
-from typing import Any, Optional, cast
+from typing import Any, Optional
 from app.framework.pubsub import Publisher, Subscriber
-from app.schemas.feeding_event import FeedingEventSchema
-from app.schemas.feeding_sample import FeedingSampleSchema
-from app.schemas.jar import JarSchema
+from lib.fermento_embedded_schemas.feeding_event import FeedingEventSchema
+from lib.fermento_embedded_schemas.feeding_sample import FeedingSampleSchema
 from app.sensors.co2 import CO2Sensor
 from app.sensors.distance import DistanceSensor
 from app.sensors.trh import TRHSensor
@@ -12,9 +11,6 @@ from app.services.mqtt import MqttService
 from app.services.state import AppStateService
 from app.services.timer import TimerService
 from app.viewmodels.base import BaseViewmodel
-from app.framework.observer import Observer
-from app.viewmodels.measure_name_select import MeasureNameSelectViewmodel
-import json
 
 logger = log.LogServiceManager.get_logger(name=__name__)
 
@@ -141,7 +137,7 @@ class TrackFermentationViewmodel(BaseViewmodel, Subscriber):
                 f"Saving sample: Distance: {self._distance}, TRH: {self._trh}, CO2: {self._co2}"
             )
             message = FeedingSampleSchema(
-                feeding_event_id=0,
+                feeding_event_id=self._feeding_event.id if self._feeding_event else None,
                 temperature=self._trh.get("t", 0.0),
                 humidity=self._trh.get("rh", 0.0),
                 co2=self._co2,

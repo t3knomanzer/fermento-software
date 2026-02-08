@@ -51,3 +51,4 @@ wokwi.toml
 diagram.json
 *.code-workspace
 *.log
+.tmp/

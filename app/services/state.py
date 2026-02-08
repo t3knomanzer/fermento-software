@@ -1,6 +1,6 @@
 from typing import Optional
 from app.framework.pubsub import Publisher
-from app.schemas.feeding_event import FeedingEventSchema
+from lib.fermento_embedded_schemas.feeding_event import FeedingEventSchema
 
 
 class AppStateService:

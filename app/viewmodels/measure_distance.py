@@ -1,6 +1,6 @@
 from typing import Any, Optional
 from app.framework.pubsub import Publisher, Subscriber
-from app.schemas.jar import JarSchema
+from lib.fermento_embedded_schemas import JarSchema
 from app.sensors.distance import DistanceSensor
 from app.services import log
 from app.services.container import ContainerService
