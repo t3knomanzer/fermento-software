@@ -33,7 +33,7 @@ class MeasureDistanceView(BaseView):
         self._distance_lbl = Label(
             self._large_writer, row=lbl_row, col=0, text=lbl_width, justify=Label.CENTRE
         )
-        self._distance_lbl.value("")
+        self._distance_lbl.value("0mm")
 
         # Save button
         btn_width = 48
@@ -75,7 +75,7 @@ class MeasureDistanceView(BaseView):
     def on_viewmodel_value_changed(self, **kwargs):
         distance = kwargs.get("distance", None)
         if distance is not None:
-            self._set_control_value(self._distance_lbl, str(distance))
+            self._set_control_value(self._distance_lbl, f"{distance}mm")
         name = kwargs.get("name", None)
         if name is not None:
             self._set_control_value(self._name_lbl, name)
