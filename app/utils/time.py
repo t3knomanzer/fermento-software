@@ -1,14 +1,18 @@
+import logging
 from time import localtime, time
 from ntptime import settime
+
+
+logger = logging.getLogger(__name__)
 
 
 def setup_ntp_time():
     try:
         settime()
-        print(f"Ntp time set. Current time {now_str()} - {time()}")
+        logger.info(f"Ntp time set. Current time {now_str()} - {time()}")
         return True
     except Exception as e:
-        print(f"Error setting ntp time. {e}")
+        logger.error(f"Error setting ntp time. {e}")
         return False
 
 
