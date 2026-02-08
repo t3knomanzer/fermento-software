@@ -22,12 +22,8 @@ class MeasureDistanceViewmodel(BaseViewmodel, Subscriber):
 
         self._name: Optional[str] = None
         self._distance: int = 0
-        self._distance_sensor: DistanceSensor = ContainerService.get_instance(
-            DistanceSensor
-        )
-        self._app_state_service: AppStateService = ContainerService.get_instance(
-            AppStateService
-        )
+        self._distance_sensor: DistanceSensor = ContainerService.get_instance(DistanceSensor)
+        self._app_state_service: AppStateService = ContainerService.get_instance(AppStateService)
         self._mqtt_service: MqttService = ContainerService.get_instance(MqttService)
 
     def save_measurement(self) -> None:

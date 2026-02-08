@@ -9,6 +9,7 @@ from app.services.mqtt import MqttService
 from app.services.navigation import NavigationService
 from app.services.network import NetworkService
 from app.services.state import AppStateService
+from app.services.timer import TimerService
 from app.utils.time import setup_ntp_time
 from app.viewmodels.base import BaseViewmodel
 from app.viewmodels.measure_distance import MeasureDistanceViewmodel
@@ -75,6 +76,7 @@ class ApplicationViewmodel(BaseViewmodel):
         ContainerService.register_type(AppStateService)
         ContainerService.register_type(NetworkService)
         ContainerService.register_type(MqttService)
+        ContainerService.register_type(TimerService)
 
         # Sensors
         ContainerService.register_type(DistanceSensor)

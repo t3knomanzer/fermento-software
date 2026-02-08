@@ -20,8 +20,7 @@ class TRHSensor(BaseSensor):
         logger.info("Initializing TRH sensor...")
         self._sensor: Optional[SHT4x] = None
         self._i2c: Optional[I2C] = None
-        self._measure_task: Optional[asyncio.Task] = None
-        self._frequency: float = BaseSensor.FREQUENCY_HIGH
+        self._capture_task: Optional[asyncio.Task] = None
         self._trh: dict[str, Any] = {"t": 0.0, "rh": 0.0}
 
         self._setup_i2c()
@@ -46,29 +45,45 @@ class TRHSensor(BaseSensor):
         self._sensor.mode = Mode.NOHEAT_HIGHPRECISION  # type: ignore
 
     def start(self) -> None:
+        super().start()
+        logger.info("Warming up TRH sensor...")
         if not self._sensor:
             logger.error("Sensor not initialized")
             return
 
-        if self._measure_task and not self._measure_task.done():
-            logger.warning("Measure task already running")
+    def read(self) -> None:
+        super().read()
+        logger.info("Capturing TRH sensor...")
+        if not self._sensor:
+            logger.error("Sensor not initialized")
             return
 
-        self._measure_task = asyncio.create_task(self.read_async())
+        if self._capture_task and not self._capture_task.done():
+            logger.warning("Capture task already running")
+            return
+
+        self._capture_task = asyncio.create_task(self.capture_async())
 
     def stop(self) -> None:
-        if self._measure_task:
-            self._measure_task.cancel()
-            self._measure_task = None
+        super().stop()
+        logger.info("Stopping TRH sensor...")
+        if not self._sensor:
+            logger.error("Sensor not initialized")
+            return
 
-    async def read_async(self) -> None:
+        if not self._capture_task or self._capture_task.done() or self._capture_task.cancelled():
+            logger.error("Sensor not running")
+            return
+
+        self._capture_task.cancel()
+        self._capture_task = None
+
+    async def capture_async(self) -> None:
         if not self._sensor:
             logger.error("Sensor not initialized")
             return
 
         logger.info("Starting TRH read loop...")
-        while True:
-            t, rh = self._sensor.measurements  # type: ignore
-            logger.debug(f"Reading TRH sensor data: Temperature={t}C, Humidity={rh}%")
-            self.trh = {"t": t, "rh": rh}
-            await asyncio.sleep(1 / self._frequency)
+        t, rh = self._sensor.measurements  # type: ignore
+        logger.debug(f"Reading TRH sensor data: Temperature={t}C, Humidity={rh}%")
+        self.trh = {"t": t, "rh": rh}

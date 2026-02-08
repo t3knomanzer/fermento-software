@@ -112,7 +112,6 @@ class TrackFermentationView(BaseView):
 
     def on_navigated_from(self) -> None:
         logger.debug("Navigated from MeasureDistanceView")
-        self._notify_value_changed(state="inactive")
 
     def on_navigated_to(self) -> None:
         logger.debug("Navigated to MeasureDistanceView")
@@ -121,12 +120,14 @@ class TrackFermentationView(BaseView):
     def start_stop_callback(self, btn: Button) -> None:
         if btn.text == "Start":
             btn.text = "Stop"  # type: ignore
+            self._notify_value_changed(state="active_capture")
             self._time_update_task = asyncio.create_task(self.update_time())
 
         elif btn.text == "Stop":
             btn.text = "Start"  # type: ignore
             if self._time_update_task:
                 self._time_update_task.cancel()
+            self._notify_value_changed(state="inactive")
 
     async def update_time(self):
         elapsed_seconds = 0

@@ -21,8 +21,7 @@ class CO2Sensor(BaseSensor):
         self._sensor: Optional[SCD4X] = None
         self._i2c: Optional[I2C] = None
         self._co2: int = 0
-        self._frequency: float = BaseSensor.FREQUENCY_HIGH
-        self._read_task: Optional[asyncio.Task] = None
+        self._capture_task: Optional[asyncio.Task] = None
 
         self._setup_i2c()
         self._setup_sensor()
@@ -45,35 +44,49 @@ class CO2Sensor(BaseSensor):
         self._sensor = SCD4X(self._i2c)
 
     def start(self) -> None:
+        super().start()
+        logger.info("Warming up CO2 sensor...")
         if not self._sensor:
             logger.error("Sensor not initialized")
-            return
-
-        if self._read_task and not self._read_task.done():
-            logger.warning("Read task already running")
             return
 
         self._sensor.start_periodic_measurement()
-        self._read_task = asyncio.create_task(self.read_async())
 
-    def stop(self) -> None:
-        if self._read_task:
-            if self._sensor:
-                self._sensor.stop_periodic_measurement()
-
-            self._read_task.cancel()
-            self._read_task = None
-
-    async def read_async(self) -> None:
+    def read(self) -> None:
+        super().read()
+        logger.info("Capturing CO2 sensor...")
         if not self._sensor:
             logger.error("Sensor not initialized")
             return
 
-        logger.info("Starting CO2 read loop...")
-        while True:
-            if self._sensor.data_ready:
-                self.co2 = self._sensor.CO2
-                logger.debug(f"Reading CO2 sensor data: {self.co2} ppm")
-                await asyncio.sleep(1 / self._frequency)
-            else:
-                await asyncio.sleep(0.1)
+        if self._capture_task and not self._capture_task.done():
+            logger.warning("Capture task already running")
+            return
+
+        self._capture_task = asyncio.create_task(self.capture_async())
+
+    def stop(self) -> None:
+        super().stop()
+        logger.info("Stopping CO2 sensor...")
+        if not self._sensor:
+            logger.error("Sensor not initialized")
+            return
+
+        if not self._capture_task or self._capture_task.done() or self._capture_task.cancelled():
+            logger.error("Sensor not running")
+            return
+
+        self._sensor.stop_periodic_measurement()
+        self._capture_task.cancel()
+        self._capture_task = None
+
+    async def capture_async(self) -> None:
+        if not self._sensor:
+            logger.error("Sensor not initialized")
+            return
+
+        while not self._sensor.data_ready:
+            await asyncio.sleep(0.1)
+
+        self.co2 = self._sensor.CO2
+        logger.debug(f"Read CO2 sensor data: {self.co2} ppm")

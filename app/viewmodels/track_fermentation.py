@@ -1,6 +1,7 @@
 from typing import Any, Optional, cast
 from app.framework.pubsub import Publisher, Subscriber
 from app.schemas.feeding_event import FeedingEventSchema
+from app.schemas.feeding_sample import FeedingSampleSchema
 from app.schemas.jar import JarSchema
 from app.sensors.co2 import CO2Sensor
 from app.sensors.distance import DistanceSensor
@@ -9,6 +10,7 @@ from app.services import log
 from app.services.container import ContainerService
 from app.services.mqtt import MqttService
 from app.services.state import AppStateService
+from app.services.timer import TimerService
 from app.viewmodels.base import BaseViewmodel
 from app.framework.observer import Observer
 from app.viewmodels.measure_name_select import MeasureNameSelectViewmodel
@@ -37,6 +39,7 @@ class TrackFermentationViewmodel(BaseViewmodel, Subscriber):
         self._co2_sensor: CO2Sensor = ContainerService.get_instance(CO2Sensor)
         self._app_state_service: AppStateService = ContainerService.get_instance(AppStateService)
         self._mqtt_service: MqttService = ContainerService.get_instance(MqttService)
+        self._timer_service: TimerService = ContainerService.get_instance(TimerService)
 
     @property
     def distance(self) -> int:
@@ -94,7 +97,16 @@ class TrackFermentationViewmodel(BaseViewmodel, Subscriber):
             self._distance_sensor.start()
             self._trh_sensor.start()
             self._co2_sensor.start()
+            self._timer_service.start_timer("preview", 1, True)
+            Publisher.subscribe(self, topic=f"{TimerService.TOPIC_TICK}/preview")
+
+        elif state == "active_capture":
+            self._timer_service.stop_timer("preview")
+            self._timer_service.start_timer("capture", 5, True)
+            Publisher.subscribe(self, topic=f"{TimerService.TOPIC_TICK}/capture")
+
         elif state == "inactive":
+            self._timer_service.stop_timer("capture")
             self._distance_sensor.stop()
             self._trh_sensor.stop()
             self._co2_sensor.stop()
@@ -114,4 +126,25 @@ class TrackFermentationViewmodel(BaseViewmodel, Subscriber):
             if self._feeding_event is not None:
                 self.jar_name = self._feeding_event.jar["name"]
                 self.starter_name = self._feeding_event.starter["name"]
-                self._notify_value_changed(feeding_event=self._feeding_event)
+
+        elif topic == f"{TimerService.TOPIC_TICK}/preview":
+            self._distance_sensor.read()
+            self._trh_sensor.read()
+            self._co2_sensor.read()
+
+        elif topic == f"{TimerService.TOPIC_TICK}/capture":
+            self._distance_sensor.read()
+            self._trh_sensor.read()
+            self._co2_sensor.read()
+            # Submit data to MQTT
+            logger.info(
+                f"Saving sample: Distance: {self._distance}, TRH: {self._trh}, CO2: {self._co2}"
+            )
+            message = FeedingSampleSchema(
+                feeding_event_id=0,
+                temperature=self._trh.get("t", 0.0),
+                humidity=self._trh.get("rh", 0.0),
+                co2=self._co2,
+                distance=self._distance,
+            ).to_dict()
+            self._mqtt_service.publish(topic=f"feeding_samples/create", message=message, qos=0)
