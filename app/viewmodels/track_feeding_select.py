@@ -22,8 +22,7 @@ class TrackFeedingSelectViewmodel(BaseViewmodel):
         self._mqtt_service.subscribe_topic(topic="fermento/feeding_events/receive", qos=1)
         self._mqtt_service.add_message_handler(self.on_mqtt_message_received)
 
-        self._feeding_events: list[FeedingEventSchema] = []
-        self._choices: list[str] = []
+        self._choices: dict[str, FeedingEventSchema] = {}
 
     def _request_feeding_data(self):
         logger.info("Requesting feeding data...")
@@ -37,9 +36,7 @@ class TrackFeedingSelectViewmodel(BaseViewmodel):
         if kwargs.get("choice"):
             choice = kwargs["choice"]
             logger.info(f"Received selected choice: {choice}")
-            feeding_event: Optional[FeedingEventSchema] = next(
-                (event for event in self._feeding_events if f"{event.date}" == choice), None
-            )
+            feeding_event: Optional[FeedingEventSchema] = self._choices.get(choice, None)
             logger.info(f"Selected feeding event: {feeding_event}")
             self._app_state_service.selected_feeding_event = feeding_event
 
@@ -51,8 +48,10 @@ class TrackFeedingSelectViewmodel(BaseViewmodel):
                 return
 
             for item in message[:2]:  # Limit to first 2 events
+                logger.debug(f"Processing feeding event item: {item}")
                 event: FeedingEventSchema = FeedingEventSchema.from_dict(item)  # type: ignore
-                self._feeding_events.append(event)
+                ts = event.timestamp
+                label = f"{ts.day}/{ts.month}/{ts.year} {ts.hour}:{ts.minute}"
+                self._choices[f"{label}"] = event  # Store event with timestamp as key
 
-            self._choices = [f"{event.date}" for event in self._feeding_events]
-            self._notify_value_changed(choices=self._choices)
+            self._notify_value_changed(choices=self._choices.keys())

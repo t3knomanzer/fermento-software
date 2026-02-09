@@ -1,4 +1,5 @@
-from lib.fermento_embedded_schemas.base import BaseSchema
+from datetime import datetime
+from .base import BaseSchema
 
 
 class FeedingEventSchema(BaseSchema):
@@ -7,15 +8,23 @@ class FeedingEventSchema(BaseSchema):
     """
 
     id: int
-    date: str
     starter: dict
     jar: dict
+    timestamp: datetime
+
+    @classmethod
+    def from_dict(cls, data: dict) -> "FeedingEventSchema":
+        # Convert timestamp string to datetime object
+        if "timestamp" in data and isinstance(data["timestamp"], str):
+            timestamp = data["timestamp"].replace("Z", "+00:00")
+            data["timestamp"] = datetime.fromisoformat(timestamp)
+        return super().from_dict(data)  # type: ignore
 
     @classmethod
     def _get_fields(cls) -> list[str]:
         return [
             "id",
-            "date",
             "starter",
             "jar",
+            "timestamp",
         ]

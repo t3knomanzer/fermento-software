@@ -43,9 +43,7 @@ class TrackFeedingSelectView(BaseView):
         col = 12
 
         for i in range(2):
-            btn = Button(
-                self._writer, row=row, col=col, width=width, height=height, text=""
-            )
+            btn = Button(self._writer, row=row, col=col, width=width, height=height, text="")
             row += height + 2
             self._choice_btns.append(btn)
 
@@ -58,7 +56,9 @@ class TrackFeedingSelectView(BaseView):
         logger.info(f"Updating buttons with choices...")
         if len(self._choices) < 2:
             for i in range(len(self._choices), len(self._choice_btns)):
+                logger.debug(f"Hiding button {i} as there are only {len(self._choices)} choices")
                 self._choice_btns[i].visible = False  # Hide unused buttons
+                self._choice_btns[i].show()  # redraw to apply visibility change
 
         for i, name in enumerate(self._choices):
             self._choice_btns[i].text = name  # type: ignore
