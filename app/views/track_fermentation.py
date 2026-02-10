@@ -2,7 +2,6 @@ from app.services import log
 from app.services.navigation import NavigationService
 from app.views.base import BaseView
 
-from app.views.menu import MenuView
 from lib.gui.core.ugui import ssd
 from lib.gui.core.writer import Writer
 import lib.gui.fonts.freesans20 as large_font
@@ -130,6 +129,9 @@ class TrackFermentationView(BaseView):
             if self._time_update_task:
                 self._time_update_task.cancel()
             self._notify_value_changed(state="inactive")
+
+            from app.views.menu import MenuView
+
             NavigationService.navigate_to(MenuView)
 
     async def update_time(self):

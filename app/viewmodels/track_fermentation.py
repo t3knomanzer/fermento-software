@@ -98,7 +98,7 @@ class TrackFermentationViewmodel(BaseViewmodel, Subscriber):
 
         elif state == "active_capture":
             self._timer_service.stop_timer("preview")
-            self._timer_service.start_timer("capture", 5, True)
+            self._timer_service.start_timer("capture", 60, True)
             Publisher.subscribe(self, topic=f"{TimerService.TOPIC_TICK}/capture")
 
         elif state == "inactive":

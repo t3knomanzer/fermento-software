@@ -48,7 +48,6 @@ class TrackFeedingSelectViewmodel(BaseViewmodel):
                 return
 
             for item in message[:2]:  # Limit to first 2 events
-                logger.debug(f"Processing feeding event item: {item}")
                 event: FeedingEventSchema = FeedingEventSchema.from_dict(item)  # type: ignore
                 ts = event.timestamp
                 label = f"{ts.day}/{ts.month}/{ts.year} {ts.hour}:{ts.minute}"
