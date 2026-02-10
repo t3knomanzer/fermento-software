@@ -18,7 +18,7 @@ EXCLUDE_DIRS = {
     "dev",
     "demos",
     "drivers",
-    # "lib",
+    "lib",
 }
 # ------------------------
 

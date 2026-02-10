@@ -15,7 +15,7 @@ EXCLUDE_DIRS = {
     "dev",
     "demos",
     "drivers",
-    # "lib",to  
+    "lib",
 }
 
 INCLUDE_EXTENSIONS = {".mpy", ".css", ".xbm", ".dat"}
