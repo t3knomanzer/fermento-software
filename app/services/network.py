@@ -1,5 +1,5 @@
 from app.services.log import LogServiceManager
-from app.services.web.wifi_manager import WifiManager
+from app.services.wifi import WifiService
 
 import config
 
@@ -9,7 +9,7 @@ logger = LogServiceManager.get_logger(name=__name__)
 
 class NetworkService:
     def __init__(self):
-        self._wm = WifiManager(
+        self._wm = WifiService(
             ssid=config.WIFI_AP_SSID, password=config.WIFI_AP_PASSWORD, reboot=True
         )
 

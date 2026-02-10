@@ -17,7 +17,7 @@ from app.services.web.web_templates import page, wifi_form, network_row, message
 logger = LogServiceManager.get_logger(name=__name__)
 
 
-class WifiManager:
+class WifiService:
     def __init__(self, ssid="WifiManager", password="wifimanager", reboot=True, debug=True):
         self.wlan_sta = network.WLAN(network.STA_IF)
         self.wlan_sta.active(True)
