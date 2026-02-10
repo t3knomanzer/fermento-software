@@ -14,7 +14,6 @@ class FeedingEventSchema(BaseSchema):
 
     @classmethod
     def from_dict(cls, data: dict) -> "FeedingEventSchema":
-        # Convert timestamp string to datetime object
         if "timestamp" in data and isinstance(data["timestamp"], str):
             timestamp = data["timestamp"].replace("Z", "+00:00")
             data["timestamp"] = datetime.fromisoformat(timestamp)
