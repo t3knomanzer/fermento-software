@@ -7,14 +7,15 @@ ROOT = Path(__file__).resolve().parent.parent
 EXCLUDE_DIRS = {
     ".git",
     ".venv",
+    ".tmp",
     "__pycache__",
     "examples",
     "tools",
     "firmware",
     "dev",
     "demos",
-    "_drivers",
-    "_lib",
+    "drivers",
+    # "lib",to  
 }
 
 INCLUDE_EXTENSIONS = {".mpy", ".css", ".xbm", ".dat"}
@@ -23,13 +24,11 @@ INCLUDE_EXTENSIONS = {".mpy", ".css", ".xbm", ".dat"}
 FORCE_FILES = [
     ("main.py", ":/main.py"),
     ("boot.py", ":/boot.py"),
-    ("lib/typing/typing.mpy", ":typing.mpy"),
-    ("_lib/typing/typing.mpy", ":typing.mpy"),
-    ("lib/typing/typing_extensions.mpy", ":typing_extensions.mpy"),
-    ("_lib/typing/typing_extensions.mpy", ":typing_extensions.mpy"),
+    ("lib/typing/typing.py", ":/typing.py"),
+    ("lib/typing/typing_extensions.py", ":/typing_extensions.py"),
 ]
 
-MPREMOTE = []
+MPREMOTE = ["mpremote"]
 
 
 def run_cmd(cmd: list[str], *, allow_fail: bool = False) -> subprocess.CompletedProcess:

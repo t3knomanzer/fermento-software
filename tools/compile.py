@@ -10,14 +10,15 @@ OPT_LEVEL = "-O2"
 EXCLUDE_DIRS = {
     ".git",
     ".venv",
+    ".tmp",
     "__pycache__",
     "examples",
     "tools",
     "firmware",
     "dev",
     "demos",
-    "_drivers",
-    "_lib",
+    "drivers",
+    # "lib",
 }
 # ------------------------
 
