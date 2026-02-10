@@ -45,9 +45,10 @@ class SplashView(BaseView):
         )
 
     def on_viewmodel_value_changed(self, **kwargs):
+        logger.debug(f"Viewmodel value changed: {kwargs}")
+
         message = kwargs.get("message", None)
         if message:
-            logger.info(f"Setting splash_message to {message}")
             self._set_control_value(self._lbl_msg, message)
 
     def on_navigated_from(self) -> None:

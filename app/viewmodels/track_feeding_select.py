@@ -29,18 +29,21 @@ class TrackFeedingSelectViewmodel(BaseViewmodel):
         self._mqtt_service.publish(topic=f"feeding_events/request", message="", qos=1)
 
     def on_view_value_changed(self, **kwargs) -> None:
+        logger.debug(f"View value changed: {kwargs}")
+
         if kwargs.get("state") == "active":
-            logger.info("Received status active")
             self._request_feeding_data()
 
         if kwargs.get("choice"):
             choice = kwargs["choice"]
-            logger.info(f"Received selected choice: {choice}")
             feeding_event: Optional[FeedingEventSchema] = self._choices.get(choice, None)
-            logger.info(f"Selected feeding event: {feeding_event}")
+
+            logger.debug(f"Selected feeding event: {feeding_event}")
             self._app_state_service.selected_feeding_event = feeding_event
 
     def on_mqtt_message_received(self, message, topic):
+        logger.debug(f"MQTT message received on topic '{topic}': {message}")
+
         if topic == "fermento/feeding_events/receive":
             message = json.loads(message)
             if not isinstance(message, list):

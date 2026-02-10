@@ -45,7 +45,7 @@ class CO2Sensor(BaseSensor):
 
     def start(self) -> None:
         super().start()
-        logger.info("Warming up CO2 sensor...")
+        logger.info("Starting CO2 sensor...")
         if not self._sensor:
             logger.error("Sensor not initialized")
             return
@@ -54,7 +54,7 @@ class CO2Sensor(BaseSensor):
 
     def read(self) -> None:
         super().read()
-        logger.info("Capturing CO2 sensor...")
+        logger.info("Reading CO2 sensor...")
         if not self._sensor:
             logger.error("Sensor not initialized")
             return

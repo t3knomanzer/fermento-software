@@ -73,9 +73,12 @@ class MeasureDistanceView(BaseView):
         NavigationService.navigate_to(view)
 
     def on_viewmodel_value_changed(self, **kwargs):
+        logger.debug(f"Viewmodel value changed: {kwargs}")
+
         distance = kwargs.get("distance", None)
         if distance is not None:
             self._set_control_value(self._distance_lbl, f"{distance}mm")
+
         name = kwargs.get("name", None)
         if name is not None:
             self._set_control_value(self._name_lbl, name)

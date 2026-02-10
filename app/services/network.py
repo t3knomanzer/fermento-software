@@ -10,7 +10,7 @@ logger = LogServiceManager.get_logger(name=__name__)
 class NetworkService:
     def __init__(self):
         self._wm = WifiManager(
-            ssid=config.WIFI_AP_SSID, password=config.WIFI_AP_PASS, reboot=True
+            ssid=config.WIFI_AP_SSID, password=config.WIFI_AP_PASSWORD, reboot=True
         )
 
     def start_server(self):

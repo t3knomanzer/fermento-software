@@ -4,6 +4,7 @@
 # Version: 2.1.0 (UI refactor: inline CSS from file)
 # Description: WiFi Manager for ESP8266 and ESP32 using MicroPython.
 
+from app.services.log import LogServiceManager
 import machine
 import network
 import socket
@@ -12,11 +13,12 @@ import time
 
 from app.services.web.web_templates import page, wifi_form, network_row, message_box
 
+# Create logger
+logger = LogServiceManager.get_logger(name=__name__)
+
 
 class WifiManager:
-    def __init__(
-        self, ssid="WifiManager", password="wifimanager", reboot=True, debug=True
-    ):
+    def __init__(self, ssid="WifiManager", password="wifimanager", reboot=True, debug=True):
         self.wlan_sta = network.WLAN(network.STA_IF)
         self.wlan_sta.active(True)
         self.wlan_ap = network.WLAN(network.AP_IF)
@@ -52,24 +54,28 @@ class WifiManager:
                 self.css_text = f.read()
         except Exception as e:
             if self.debug:
-                print("Could not load style.css:", e)
+                logger.error("Could not load style.css:", e)
 
     # -------------------------
     # WiFi helpers
     # -------------------------
     def connect(self):
         if self.wlan_sta.isconnected():
+            logger.info("Already connected to WiFi.")
             return True
+
         profiles = self.read_credentials()
         for ssid, *_ in self.wlan_sta.scan():
             ssid = ssid.decode("utf-8")
             if ssid in profiles:
                 if self.wifi_connect(ssid, profiles[ssid]):
+                    logger.info(f"Connected successfully to: {ssid}")
                     return True
         return False
 
     def disconnect(self):
         if self.wlan_sta.isconnected():
+            logger.info("Disconnecting from WiFi...")
             self.wlan_sta.disconnect()
 
     def is_connected(self):
@@ -91,7 +97,7 @@ class WifiManager:
                 lines = file.readlines()
         except Exception as error:
             if self.debug:
-                print(error)
+                logger.error(f"Error reading credentials file: {error}")
             lines = []
 
         profiles = {}
@@ -101,19 +107,19 @@ class WifiManager:
                 profiles[ssid] = password
             except Exception as error:
                 if self.debug:
-                    print("Bad credentials line:", line, error)
+                    logger.error(f"Bad credentials line: {line} - {error}")
         return profiles
 
     def wifi_connect(self, ssid, password):
-        print("Trying to connect to:", ssid)
+        logger.info(f"Trying to connect to: {ssid}")
         self.wlan_sta.connect(ssid, password)
         for _ in range(100):
             if self.wlan_sta.isconnected():
-                print("\nConnected! Network information:", self.wlan_sta.ifconfig())
+                logger.info(f"\nConnected! Network information:{self.wlan_sta.ifconfig()}")
                 return True
             print(".", end="")
             time.sleep_ms(100)
-        print("\nConnection failed!")
+        logger.error("\nConnection failed!")
         self.wlan_sta.disconnect()
         return False
 
@@ -154,7 +160,7 @@ class WifiManager:
             scanned = self.wlan_sta.scan()
         except Exception as error:
             if self.debug:
-                print("scan() failed:", error)
+                logger.error(f"scan() failed: {error}")
             scanned = []
 
         for ssid, *_ in scanned:
@@ -206,9 +212,7 @@ class WifiManager:
                 self.send_response(message_box(html, ok=False))
                 time.sleep(5)
         else:
-            self.send_response(
-                message_box("<p>Parameters not found!</p>", ok=False), 400
-            )
+            self.send_response(message_box("<p>Parameters not found!</p>", ok=False), 400)
             time.sleep(5)
 
     def handle_not_found(self):
@@ -230,20 +234,15 @@ class WifiManager:
         server_socket.bind(("", 80))
         server_socket.listen(1)
 
-        print(
-            "Connect to",
-            self.ap_ssid,
-            "with the password",
-            self.ap_password,
-            "and access the captive portal at",
-            self.wlan_ap.ifconfig()[0],
+        logger.info(
+            f"Connect to {self.ap_ssid}, with the password {self.ap_password}, and access the captive portal at {self.wlan_ap.ifconfig()[0]}"
         )
 
         while True:
             if self.wlan_sta.isconnected():
                 self.wlan_ap.active(False)
                 if self.reboot:
-                    print("Resetting device...")
+                    logger.info("Resetting device...")
                     machine.reset()
 
             self.client, addr = server_socket.accept()
@@ -260,11 +259,11 @@ class WifiManager:
                         self.request += self.client.recv(128)
                 except Exception as error:
                     if self.debug:
-                        print(error)
+                        logger.error(f"{error}")
 
                 if self.request:
                     if self.debug:
-                        print(self.url_decode(self.request))
+                        logger.debug(f"{self.url_decode(self.request)}")
 
                     m = self._route_re.search(self.request)
                     if not m:
@@ -282,7 +281,7 @@ class WifiManager:
 
             except Exception as error:
                 if self.debug:
-                    print(error)
+                    logger.error(f"{error}")
                 return
             finally:
                 try:
@@ -323,7 +322,7 @@ class WifiManager:
                 appnd(item[2:])
             except Exception as error:
                 if self.debug:
-                    print(error)
+                    logger.error(f"{error}")
                 appnd(b"%")
                 appnd(item)
 

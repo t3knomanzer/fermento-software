@@ -16,6 +16,7 @@ class SplashViewmodel(BaseViewmodel):
 
     @message.setter
     def message(self, value: str) -> None:
+        logger.debug(f"Setting splash message: {value}")
         if self._message != value:
             self._message = value
             self._notify_value_changed(message=value)

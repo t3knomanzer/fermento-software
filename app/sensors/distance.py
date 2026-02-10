@@ -73,7 +73,7 @@ class DistanceSensor(BaseSensor):
 
     def start(self) -> None:
         super().start()
-        logger.info("Warming up distance sensor...")
+        logger.info("Starting distance sensor...")
         if not self._sensor:
             logger.error("Sensor not initialized")
             return
@@ -82,7 +82,7 @@ class DistanceSensor(BaseSensor):
 
     def read(self) -> None:
         super().read()
-        logger.info("Capturing distance sensor...")
+        logger.info("Reading distance sensor...")
         if not self._sensor:
             logger.error("Sensor not initialized")
             return

@@ -99,8 +99,8 @@ class TrackFermentationView(BaseView):
             self._set_control_value(self._temperature_lbl, f"{temperature:.1f}C")
             self._set_control_value(self._rh_lbl, f"{humidity:.1f}%")
 
-        if "co2" in kwargs:
-            co2 = kwargs.get("co2", 0)
+        co2 = kwargs.get("co2", None)
+        if co2 is not None:
             self._set_control_value(self._co2_lbl, f"{co2}ppm")
 
         jar_name = kwargs.get("jar_name", None)
@@ -112,13 +112,15 @@ class TrackFermentationView(BaseView):
             self._set_control_value(self._starter_lbl, starter_name)
 
     def on_navigated_from(self) -> None:
-        logger.debug("Navigated from MeasureDistanceView")
+        logger.debug("Navigated from TrackFermentationView")
 
     def on_navigated_to(self) -> None:
-        logger.debug("Navigated to MeasureDistanceView")
+        logger.debug("Navigated to TrackFermentationView")
         self._notify_value_changed(state="active")
 
     def start_stop_callback(self, btn: Button) -> None:
+        logger.info(f"Start/Stop button pressed: {btn.text}")
+
         if btn.text == "Start":
             btn.text = "Stop"  # type: ignore
             self._notify_value_changed(state="active_capture")

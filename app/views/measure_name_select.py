@@ -1,3 +1,4 @@
+import config
 from app.framework.observer import Observable, Observer
 from app.services import log
 from app.services.navigation import NavigationService
@@ -42,9 +43,7 @@ class MeasureNameSelectView(BaseView):
         btn_width = ssd.width // 3 - margin
         for i in range(3):
             col = (btn_width * i) + (margin * (i + 1))
-            btn = Button(
-                self._writer, row=ssd.height // 2, col=col, width=btn_width, text=""
-            )
+            btn = Button(self._writer, row=ssd.height // 2, col=col, width=btn_width, text="")
             self._choice_btns.append(btn)
 
     def _choose_callback(self, widget: Widget, arg: Any) -> None:
@@ -53,9 +52,7 @@ class MeasureNameSelectView(BaseView):
         NavigationService.navigate_to(MeasureDistanceView)
 
     def _update_buttons(self):
-        logger.info(f"Updating buttons with choices...")
-        if len(self._choices) != 3:
-            raise ValueError(f"Invalid number of choices {len(self._choices)}")
+        logger.debug(f"Updating buttons with choices...")
 
         for i, name in enumerate(self._choices):
             self._choice_btns[i].text = name  # type: ignore
@@ -67,9 +64,13 @@ class MeasureNameSelectView(BaseView):
         NavigationService.navigate_to(view)
 
     def on_viewmodel_value_changed(self, **kwargs):
+        logger.debug(f"Viewmodel value changed: {kwargs}")
+
         choices = kwargs.get("choices", None)
-        if not choices or len(choices) != 3:
-            raise ValueError(f"Invalid number of choices {choices}")
+        if not choices or len(choices) != config.MEASURE_MAX_CHOICES:
+            logger.error(f"Invalid choices received: {choices}")
+            return
+
         self._choices = choices
         self._update_buttons()
 

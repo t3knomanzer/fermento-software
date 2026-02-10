@@ -1,6 +1,9 @@
 import asyncio
 
 from app.framework.pubsub import Publisher
+from app.services import log
+
+logger = log.LogServiceManager.get_logger(name=__name__)
 
 
 class TimerService:
@@ -11,6 +14,8 @@ class TimerService:
         self._timer_tasks: dict[str, asyncio.Task] = {}
 
     def start_timer(self, name: str, duration: int, loop: bool = False) -> None:
+        logger.debug(f"Starting timer '{name}' with duration {duration} seconds, loop={loop}")
+
         if name in self._timer_tasks and not self._timer_tasks[name].done():
             self._timer_tasks[name].cancel()
         self._timer_tasks[name] = asyncio.create_task(self._run_timer(name, duration, loop))
@@ -25,5 +30,6 @@ class TimerService:
             Publisher.publish({"timer": "tick"}, topic=f"{self.TOPIC_TICK}/{name}")
 
     def stop_timer(self, name: str) -> None:
+        logger.debug(f"Stopping timer '{name}'")
         if name in self._timer_tasks and not self._timer_tasks[name].done():
             self._timer_tasks[name].cancel()

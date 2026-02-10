@@ -29,7 +29,8 @@ class ContainerService:
     @classmethod
     def get_instance(cls, type_: type) -> Any:
         if not type_ in cls._type_map:
-            raise ValueError(f"Type {type_.__name__} is not registered.")
+            logger.critical(f"Type {type_} not registered in container!")
+            return
 
         registered_type = cls._type_map[type_]
         if registered_type.strategy == ContainerService.STRATEGY_INSTANCED or (

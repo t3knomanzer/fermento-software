@@ -53,7 +53,7 @@ class TRHSensor(BaseSensor):
 
     def read(self) -> None:
         super().read()
-        logger.info("Capturing TRH sensor...")
+        logger.info("Reading TRH sensor...")
         if not self._sensor:
             logger.error("Sensor not initialized")
             return
@@ -83,7 +83,6 @@ class TRHSensor(BaseSensor):
             logger.error("Sensor not initialized")
             return
 
-        logger.info("Starting TRH read loop...")
         t, rh = self._sensor.measurements  # type: ignore
-        logger.debug(f"Reading TRH sensor data: Temperature={t}C, Humidity={rh}%")
+        logger.debug(f"Read TRH sensor data: Temperature={t}C, Humidity={rh}%")
         self.trh = {"t": t, "rh": rh}

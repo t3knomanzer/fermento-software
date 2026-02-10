@@ -88,6 +88,8 @@ class TrackFermentationViewmodel(BaseViewmodel, Subscriber):
             self._notify_value_changed(starter_name=value)
 
     def on_view_value_changed(self, **kwargs) -> None:
+        logger.debug(f"View value changed: {kwargs}")
+
         state = kwargs.get("state", None)
         if state == "active":
             self._distance_sensor.start()
@@ -108,6 +110,8 @@ class TrackFermentationViewmodel(BaseViewmodel, Subscriber):
             self._co2_sensor.stop()
 
     def on_publisher_message_received(self, message: Any, topic: str):
+        logger.debug(f"Publisher message received on topic '{topic}': {message}")
+
         if topic == DistanceSensor.TOPIC_DISTANCE:
             self.distance = message
 

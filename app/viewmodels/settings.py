@@ -10,8 +10,10 @@ class SettingsViewmodel(BaseViewmodel):
     def __init__(self):
         super().__init__()
 
-    def on_control_changed(self, id: str, arg: Any) -> None:
-        if id == "reset":
+    def on_view_value_changed(self, **kwargs) -> None:
+        logger.debug(f"View value changed: {kwargs}")
+
+        if kwargs.get("id") == "reset":
             self._reset_settings()
 
     def _reset_settings(self):

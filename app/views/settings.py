@@ -45,14 +45,11 @@ class SettingsView(BaseView):
         )
 
     def _reset_settings(self, widget: Widget):
-        self._notify_control_changed(None, "reset", None)
+        self._notify_value_changed(reset=True)
         NavigationService.navigate_back()
 
     def _navigate_back(self, widget: Widget, arg: Any) -> None:
         NavigationService.navigate_back()
-
-    def on_property_changed(self, name: str, value: Any) -> None:
-        pass
 
     def on_navigated_from(self) -> None:
         logger.debug("Navigated from SettingsView")

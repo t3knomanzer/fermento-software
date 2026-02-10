@@ -5,6 +5,7 @@ from app.views.base import BaseView
 from typing import Any, cast
 
 from app.views.track_fermentation import TrackFermentationView
+import config
 from lib.gui.core.ugui import Widget, ssd
 from lib.gui.core.writer import Writer
 import lib.gui.fonts.arial10 as arial10
@@ -53,8 +54,9 @@ class TrackFeedingSelectView(BaseView):
         NavigationService.navigate_to(TrackFermentationView)
 
     def _update_buttons(self):
-        logger.info(f"Updating buttons with choices...")
-        if len(self._choices) < 2:
+        logger.debug(f"Updating buttons with choices...")
+
+        if len(self._choices) < config.TRACK_MAX_CHOICES:
             for i in range(len(self._choices), len(self._choice_btns)):
                 logger.debug(f"Hiding button {i} as there are only {len(self._choices)} choices")
                 self._choice_btns[i].visible = False  # Hide unused buttons
@@ -67,6 +69,8 @@ class TrackFeedingSelectView(BaseView):
             self._choice_btns[i].show()
 
     def on_viewmodel_value_changed(self, **kwargs):
+        logger.debug(f"Viewmodel value changed: {kwargs}")
+
         choices = kwargs.get("choices", None)
         if choices:
             self._choices = choices

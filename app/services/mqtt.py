@@ -48,8 +48,13 @@ class MqttService:
             await asyncio.sleep(0.5)
 
     def connect(self):
-        self.client.connect(timeout=5000)
-        self._is_connected = True
+        try:
+            self.client.connect(timeout=5000)
+            self._is_connected = True
+        except Exception as e:
+            logger.critical(f"Error connecting to MQTT server: {e}")
+            self._is_connected = False
+            return
 
         for topic in self._topics:
             self.client.subscribe(topic)

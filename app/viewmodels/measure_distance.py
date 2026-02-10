@@ -51,6 +51,8 @@ class MeasureDistanceViewmodel(BaseViewmodel, Subscriber):
         self._mqtt_service.publish(topic=f"jars/create", message=message, qos=0)
 
     def on_view_value_changed(self, **kwargs) -> None:
+        logger.debug(f"View value changed: {kwargs}")
+
         state = kwargs.get("state", None)
         if state == "active":
             self._distance_sensor.start()
@@ -63,7 +65,6 @@ class MeasureDistanceViewmodel(BaseViewmodel, Subscriber):
 
         save = kwargs.get("save", None)
         if save:
-            logger.info("Save requested, stopping sensor...")
             self._distance_sensor.stop()
             self.save_measurement()
 

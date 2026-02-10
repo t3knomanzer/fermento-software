@@ -26,6 +26,7 @@ from app.views.settings import SettingsView
 from app.views.splash import SplashView
 from app.views.track_feeding_select import TrackFeedingSelectView
 from app.views.track_fermentation import TrackFermentationView
+import config
 
 logger = log.LogServiceManager.get_logger(name=__name__)
 
@@ -38,7 +39,6 @@ class ApplicationViewmodel(BaseViewmodel):
         self._distance_sensor: Optional[DistanceSensor] = None
 
     def start(self) -> None:
-        logger.info("Starting...")
         self._register_types()
         self._bind_views_viewmodels()
         asyncio.create_task(self._init_services_async())
@@ -52,7 +52,7 @@ class ApplicationViewmodel(BaseViewmodel):
         await asyncio.sleep(0.1)
 
     def _register_types(self) -> None:
-        logger.info("Registering types...")
+        logger.debug("Registering types...")
         # Views
         ContainerService.register_type(SplashView)
         ContainerService.register_type(MenuView)
@@ -84,6 +84,7 @@ class ApplicationViewmodel(BaseViewmodel):
         ContainerService.register_type(CO2Sensor)
 
     def _bind_views_viewmodels(self) -> None:
+        logger.debug("Binding views and viewmodels...")
         self._bind_view_viewmodel(SplashView, SplashViewmodel)
         self._bind_view_viewmodel(SettingsView, SettingsViewmodel)
         self._bind_view_viewmodel(TrackFeedingSelectView, TrackFeedingSelectViewmodel)
@@ -92,6 +93,7 @@ class ApplicationViewmodel(BaseViewmodel):
         self._bind_view_viewmodel(MeasureDistanceView, MeasureDistanceViewmodel)
 
     def _bind_view_viewmodel(self, view_type: type, viewmodel_type: type) -> None:
+        logger.debug(f"Binding {view_type.__name__} to {viewmodel_type.__name__}")
         view: Optional[BaseView] = ContainerService.get_instance(view_type)
         viewmodel: Optional[BaseViewmodel] = ContainerService.get_instance(viewmodel_type)
         if view and viewmodel:
@@ -99,16 +101,14 @@ class ApplicationViewmodel(BaseViewmodel):
             viewmodel.bind_view(view)
 
     async def _init_services_async(self) -> None:
-        # Small delay to allow services/DI to settle
+        logger.debug("Initializing services...")
+        # Small delay to allow splash screen to render
         await asyncio.sleep(0.1)
 
-        logger.info("Initializing wifi...")
         if not await self._init_wifi_async():
             return
-        logger.info("Syncing time...")
         if not await self._init_time():
             return
-        logger.info("Initializing mqtt...")
         if not await self._init_mqtt_async():
             return
 
@@ -117,6 +117,7 @@ class ApplicationViewmodel(BaseViewmodel):
         NavigationService.navigate_to(MenuView)
 
     async def _init_wifi_async(self) -> bool:
+        logger.info("Initializing WiFi...")
         await self._set_splash_message_async("Connecting WiFi...")
         self._net_service = cast(NetworkService, ContainerService.get_instance(NetworkService))
         try:
@@ -132,6 +133,9 @@ class ApplicationViewmodel(BaseViewmodel):
             try:
                 # Fallback to captive portal / config server
                 self._net_service.start_server()
+                logger.info(
+                    f"Web server started connect to {config.WIFI_AP_SSID} password: {config.WIFI_AP_PASSWORD}"
+                )
             except Exception as e:
                 logger.critical(f"Error starting web server. {e}")
                 await self._set_splash_message_async("Web Server error!")
@@ -139,14 +143,15 @@ class ApplicationViewmodel(BaseViewmodel):
         return True
 
     async def _init_time(self) -> bool:
+        logger.info("Initializing NTP time...")
         await self._set_splash_message_async("Syncing time...")
         # NTP sync is fire-and-forget in this environment
         setup_ntp_time()
         return True
 
     async def _init_mqtt_async(self) -> bool:
-        await self._set_splash_message_async("Setting up services...")
         logger.info("Initializing MQTT...")
+        await self._set_splash_message_async("Setting up services...")
         try:
             self._mqtt_service = cast(MqttService, ContainerService.get_instance(MqttService))
             self._mqtt_service.connect()
