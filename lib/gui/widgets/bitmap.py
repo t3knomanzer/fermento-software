@@ -34,7 +34,6 @@ class BitMap(Widget):
         if self._value is None:
             return
         with open(self._value, "r") as f:
-            print("Drawing bitmap...")
             g = self._gen_bytes(f)
             bit = 1
             wrap = False
@@ -49,7 +48,6 @@ class BitMap(Widget):
                     if wrap:
                         byte = next(g)
                         bit = 1
-            print("Bitmap done!")
 
     def _gen_bytes(self, f):  # Yield data bytes from file stream
         f.readline()

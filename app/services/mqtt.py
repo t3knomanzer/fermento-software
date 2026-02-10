@@ -66,9 +66,13 @@ class MqttService:
         self._check_msg_task.cancel()
         self.client.disconnect()
 
-    def publish(self, topic, message, qos=0):
+    def publish(self, topic, message={}, qos=0):
         if not self._is_connected:
             logger.warning("MQTT client not connected. Cannot publish message.")
+            return
+
+        if not isinstance(message, dict):
+            logger.error("MQTT message must be a dictionary.")
             return
 
         message.update(

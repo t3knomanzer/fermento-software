@@ -115,7 +115,6 @@ class WifiService:
         self.wlan_sta.connect(ssid, password)
         for _ in range(100):
             if self.wlan_sta.isconnected():
-                logger.info(f"\nConnected! Network information:{self.wlan_sta.ifconfig()}")
                 return True
             print(".", end="")
             time.sleep_ms(100)

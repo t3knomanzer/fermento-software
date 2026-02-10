@@ -26,7 +26,7 @@ class TrackFeedingSelectViewmodel(BaseViewmodel):
 
     def _request_feeding_data(self):
         logger.info("Requesting feeding data...")
-        self._mqtt_service.publish(topic=f"feeding_events/request", message="", qos=1)
+        self._mqtt_service.publish(topic=f"feeding_events/request", qos=1)
 
     def on_view_value_changed(self, **kwargs) -> None:
         logger.debug(f"View value changed: {kwargs}")

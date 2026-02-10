@@ -69,11 +69,15 @@ class CO2Sensor(BaseSensor):
         super().stop()
         logger.info("Stopping CO2 sensor...")
         if not self._sensor:
-            logger.error("Sensor not initialized")
+            logger.warning("Sensor not initialized")
             return
 
-        if not self._capture_task or self._capture_task.done() or self._capture_task.cancelled():
-            logger.error("Sensor not running")
+        if not self._capture_task:
+            logger.warning("Sensor not running")
+            return
+
+        if self._capture_task.done() or self._capture_task.cancelled():
+            logger.warning("Capture task already completed")
             return
 
         self._sensor.stop_periodic_measurement()
