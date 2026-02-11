@@ -1,5 +1,6 @@
 import asyncio
-from datetime import datetime
+
+# from datetime import datetime
 import json
 import random
 import time
@@ -71,20 +72,20 @@ class MqttService:
             logger.warning("MQTT client not connected. Cannot publish message.")
             return
 
-        if not isinstance(message, dict):
-            logger.error("MQTT message must be a dictionary.")
-            return
+        if isinstance(message, dict):
+            message.update(
+                {
+                    "device_id": self._device_id,
+                    "message_id": str(random.randint(0, 1000000)),
+                    # "timestamp": datetime.now().isoformat(),
+                    "timestamp": int(time.time()),
+                }
+            )
 
-        message.update(
-            {
-                "device_id": self._device_id,
-                "message_id": str(random.randint(0, 1000000)),
-                "timestamp": datetime.now().isoformat(),
-            }
-        )
+            try:
+                message = json.dumps(message)
+            except Exception as e:
+                logger.error(f"Error publishing MQTT message: {e}")
 
-        try:
-            str_message = json.dumps(message)
-            self.client.publish(self._get_topic(topic), str_message, qos=qos)
-        except Exception as e:
-            logger.error(f"Error publishing MQTT message: {e}")
+        self.client.publish(self._get_topic(topic), message, qos=qos)
+        logger.debug(f"Published MQTT message to topic '{self._get_topic(topic)}'")

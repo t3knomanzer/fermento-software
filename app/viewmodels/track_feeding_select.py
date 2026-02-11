@@ -50,6 +50,9 @@ class TrackFeedingSelectViewmodel(BaseViewmodel):
                 logger.warning(f"Unexpected message format for feeding events: {message}")
                 return
 
+            message = sorted(
+                message, key=lambda x: x.get("timestamp", 0), reverse=True
+            )  # Sort by timestamp descending
             for item in message[:2]:  # Limit to first 2 events
                 event: FeedingEventSchema = FeedingEventSchema.from_dict(item)  # type: ignore
                 ts = event.timestamp

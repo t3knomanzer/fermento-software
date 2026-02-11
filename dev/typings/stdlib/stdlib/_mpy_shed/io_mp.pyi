@@ -2,7 +2,6 @@
 # from typeshed/stdlib/io.pyi
 
 import abc
-from types import TracebackType
 from typing import TypeVar
 
 from _io import BytesIO as BytesIO

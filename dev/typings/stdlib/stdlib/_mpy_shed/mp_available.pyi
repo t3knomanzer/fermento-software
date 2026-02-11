@@ -1,4 +1,4 @@
-from typing import Callable, Iterable, Tuple, TypeVar, Union
+from typing import Callable, Iterable, TypeVar, Union
 
 """
 Decorator to annotate objects with the MicroPython ports they are available on.
