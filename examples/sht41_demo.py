@@ -16,15 +16,8 @@ def average_buffer(buffer):
     return result
 
 
-print("Setting up buttons")
-btn_set = Pin(42, Pin.IN, Pin.PULL_UP)
-btn_save = Pin(41, Pin.IN, Pin.PULL_UP)
-
 print("Creating I2C bus...")
-i2c_bus = I2C(0, sda=Pin(45), scl=Pin(47))
-
-print("Creating display...")
-display = ssd1306.SSD1306_I2C(128, 64, i2c_bus)
+i2c_bus = I2C(0, sda=Pin(5), scl=Pin(6))
 
 print("Creating sensors...")
 s_sht41 = sht4x.SHT4x(i2c_bus)
@@ -40,20 +33,10 @@ rh = 0
 t_offset = -0.5
 
 while True:
-    if btn_set.value() == 0:
-        pass
-
-    if btn_save.value() == 0:
-        pass
-
     t, rh = s_sht41.measurements
     update_buffer(t_buffer, t, max_samples)
     t = average_buffer(t_buffer) + t_offset
     update_buffer(rh_buffer, rh, max_samples)
     rh = average_buffer(rh_buffer)
     print(f"T:{t} RH:{rh}")
-
-    display.fill(0)
-    display.text(f"T:{t:.1f}C RH:{rh:.1f}%", 0, 12, 1)
-    display.show()
     time.sleep(1)
