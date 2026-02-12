@@ -55,21 +55,15 @@ class DistanceSensor(BaseSensor):
             Publisher.publish(value, topic=DistanceSensor.TOPIC_DISTANCE)
 
     def _setup_i2c(self) -> None:
-        self._i2c = I2C(0, sda=Pin(45), scl=Pin(47))
+        self._i2c = I2C(0, sda=Pin(5), scl=Pin(6))
 
     def _setup_sensor(self, retries: int = 3) -> None:
         logger.info("Creating distance sensor...")
-        while not self._sensor and retries > 0:
-            try:
-                self._sensor = VL53L4CD(self._i2c)
-                self.timing_budget = self._timing_budget
-            except Exception as e:
-                logger.error(f"({retries}) Error creating distance sensor. {e}")
-                retries -= 1
-
-        if self._sensor is None:
-            # Raise exception
-            logger.critical("Couldn't create distance sensor.")
+        try:
+            self._sensor = VL53L4CD(self._i2c)
+            self.timing_budget = self._timing_budget
+        except Exception as e:
+            logger.error(f"Couldn't create distance sensor. {e}")
 
     def start(self) -> None:
         super().start()

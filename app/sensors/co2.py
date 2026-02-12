@@ -37,11 +37,14 @@ class CO2Sensor(BaseSensor):
             Publisher.publish(value, topic=self.TOPIC_CO2)
 
     def _setup_i2c(self) -> None:
-        self._i2c = I2C(0, sda=Pin(45), scl=Pin(47))
+        self._i2c = I2C(0, sda=Pin(5), scl=Pin(6))
 
     def _setup_sensor(self, retries: int = 3) -> None:
         logger.info("Creating CO2 sensor...")
-        self._sensor = SCD4X(self._i2c)
+        try:
+            self._sensor = SCD4X(self._i2c)
+        except Exception as e:
+            logger.error(f"Couldn't create CO2 sensor: {e}")
 
     def start(self) -> None:
         super().start()

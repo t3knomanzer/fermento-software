@@ -37,12 +37,15 @@ class TRHSensor(BaseSensor):
             Publisher.publish(value, topic=self.TOPIC_TRH)
 
     def _setup_i2c(self) -> None:
-        self._i2c = I2C(0, sda=Pin(45), scl=Pin(47))
+        self._i2c = I2C(0, sda=Pin(5), scl=Pin(6))
 
     def _setup_sensor(self, retries: int = 3) -> None:
         logger.info("Creating TRH sensor...")
-        self._sensor = SHT4x(self._i2c)
-        self._sensor.mode = Mode.NOHEAT_HIGHPRECISION  # type: ignore
+        try:
+            self._sensor = SHT4x(self._i2c)
+            self._sensor.mode = Mode.NOHEAT_HIGHPRECISION  # type: ignore
+        except Exception as e:
+            logger.error(f"Couldn't create TRH sensor: {e}")
 
     def start(self) -> None:
         super().start()

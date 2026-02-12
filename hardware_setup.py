@@ -12,9 +12,9 @@ from app.utils import memory
 logger = LogServiceManager.get_logger(name=__name__)
 
 # Turn off onboard LED
-led = neopixel.NeoPixel(Pin(48), 1)
-led.fill((0, 0, 0))
-led.write()
+# led = neopixel.NeoPixel(Pin(48), 1)
+# led.fill((0, 0, 0))
+# led.write()
 
 
 # We log a lot of information in this file since many things could go wrong
@@ -28,7 +28,7 @@ from lib.gui.core.ugui import Display, Screen
 memory.print_mem()
 
 logger.info("Creating I2C bus...")
-i2c_bus = I2C(0, sda=Pin(45), scl=Pin(47))
+i2c_bus = I2C(1, sda=Pin(7), scl=Pin(44))
 
 logger.info("Creating SSD...")
 oled_width = 128
@@ -49,8 +49,8 @@ if ssd is None:
     sys.exit()
 
 logger.info("Creating button pins...")
-btn_nxt = Pin(41, Pin.IN, Pin.PULL_UP)
-btn_sel = Pin(42, Pin.IN, Pin.PULL_UP)
+btn_nxt = Pin(4, Pin.IN, Pin.PULL_UP)
+btn_sel = Pin(3, Pin.IN, Pin.PULL_UP)
 btn_prev = None
 btn_inc = None
 btn_dec = None
