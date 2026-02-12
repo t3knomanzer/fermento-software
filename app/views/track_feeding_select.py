@@ -1,6 +1,5 @@
-from app.framework.observer import Observable, Observer
 from app.services import log
-from app.services.navigation import NavigationService
+from app.services.navigation import Navigable, NavigationService
 from app.views.base import BaseView
 from typing import Any, cast
 
@@ -15,7 +14,7 @@ from lib.gui.widgets.label import Label
 logger = log.LogServiceManager.get_logger(name=__name__)
 
 
-class TrackFeedingSelectView(BaseView):
+class TrackFeedingSelectView(BaseView, Navigable):
     def __init__(self):
         super().__init__(None)
 

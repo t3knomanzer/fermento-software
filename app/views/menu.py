@@ -1,5 +1,5 @@
 from app.services import log
-from app.services.navigation import NavigationService
+from app.services.navigation import Navigable, NavigationService
 from app.views.base import BaseView
 from typing import Any
 
@@ -12,7 +12,7 @@ from lib.gui.widgets.buttons import Button
 logger = log.LogServiceManager.get_logger(name=__name__)
 
 
-class MenuView(BaseView):
+class MenuView(BaseView, Navigable):
     def __init__(self):
         super().__init__(None)
         self._writer = Writer(ssd, arial10, verbose=False)

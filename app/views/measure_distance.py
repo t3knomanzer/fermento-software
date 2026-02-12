@@ -1,5 +1,5 @@
 from app.services import log
-from app.services.navigation import NavigationService
+from app.services.navigation import Navigable, NavigationService
 from app.views.base import BaseView
 
 from app.views.menu import MenuView
@@ -13,7 +13,7 @@ from lib.gui.widgets.label import Label
 logger = log.LogServiceManager.get_logger(name=__name__)
 
 
-class MeasureDistanceView(BaseView):
+class MeasureDistanceView(BaseView, Navigable):
     def __init__(self):
         super().__init__(None)
         self._large_writer = Writer(ssd, large_font, verbose=False)

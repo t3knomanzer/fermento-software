@@ -1,17 +1,22 @@
 import asyncio
+from typing import Callable
 
-from app.framework.pubsub import Publisher
 from app.services import log
 
 logger = log.LogServiceManager.get_logger(name=__name__)
 
 
 class TimerService:
-    TOPIC_ROOT = "timer"
-    TOPIC_TICK = f"{TOPIC_ROOT}/tick"
-
     def __init__(self):
         self._timer_tasks: dict[str, asyncio.Task] = {}
+        self._tick_handlers: list[Callable[[str], None]] = []
+
+    def add_tick_handler(self, handler: Callable[[str], None]) -> None:
+        self._tick_handlers.append(handler)
+
+    def _notify_tick_handlers(self, timer_name: str) -> None:
+        for handler in self._tick_handlers:
+            handler(timer_name)
 
     def start_timer(self, name: str, duration: int, loop: bool = False) -> None:
         logger.debug(f"Starting timer '{name}' with duration {duration} seconds, loop={loop}")
@@ -24,10 +29,10 @@ class TimerService:
         if loop:
             while True:
                 await asyncio.sleep(duration)
-                Publisher.publish({"timer": "tick"}, topic=f"{self.TOPIC_TICK}/{name}")
+                self._notify_tick_handlers(name)
         else:
             await asyncio.sleep(duration)
-            Publisher.publish({"timer": "tick"}, topic=f"{self.TOPIC_TICK}/{name}")
+            self._notify_tick_handlers(name)
 
     def stop_timer(self, name: str) -> None:
         logger.debug(f"Stopping timer '{name}'")

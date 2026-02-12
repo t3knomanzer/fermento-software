@@ -1,4 +1,5 @@
 from app.services import log
+from app.services.navigation import Navigable
 from app.views.base import BaseView
 
 from lib.gui.core.colors import BLACK, WHITE
@@ -11,7 +12,7 @@ import lib.gui.fonts.arial10 as arial10
 logger = log.LogServiceManager.get_logger(name=__name__)
 
 
-class SplashView(BaseView):
+class SplashView(BaseView, Navigable):
     def __init__(self):
         self._writer = Writer(ssd, arial10, verbose=False)
         super().__init__(self._writer)

@@ -20,22 +20,25 @@ class MqttService:
         topic_prefix: str = "fermento",
     ):
         self._topic_prefix = topic_prefix
-        self._message_handlers = []
+        self._message_received_handlers = []
         self._topics = []
         self._is_connected = False
         self._device_id = hexlify(machine.unique_id()).decode()
         self.client = MQTTClient(client_id=self._device_id, server=server, port=port)
-        self.client.set_callback(self._message_handler)
+        self.client.set_callback(self._on_message_received)
 
     def _get_topic(self, topic):
         return f"{self._topic_prefix}/{self._device_id}/{topic}"
 
-    def _message_handler(self, topic, msg):
-        for handler in self._message_handlers:
-            handler(msg.decode(), topic.decode())
+    def _on_message_received(self, topic, msg):
+        self._notify_message_received_handlers(topic, msg)
 
-    def add_message_handler(self, handler):
-        self._message_handlers.append(handler)
+    def add_message_received_handler(self, handler):
+        self._message_received_handlers.append(handler)
+
+    def _notify_message_received_handlers(self, topic, message):
+        for handler in self._message_received_handlers:
+            handler(message.decode(), topic.decode())
 
     def subscribe_topic(self, topic, qos=0):
         if self._is_connected:

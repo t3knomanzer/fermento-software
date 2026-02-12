@@ -1,5 +1,4 @@
 import os
-from typing import Any
 from app.services import log
 from app.viewmodels.base import BaseViewmodel
 

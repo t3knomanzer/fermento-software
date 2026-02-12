@@ -1,5 +1,5 @@
 from app.services import log
-from app.services.navigation import NavigationService
+from app.services.navigation import Navigable, NavigationService
 from app.views.base import BaseView
 
 from lib.gui.core.ugui import ssd
@@ -14,7 +14,7 @@ from typing_extensions import Optional
 logger = log.LogServiceManager.get_logger(name=__name__)
 
 
-class TrackFermentationView(BaseView):
+class TrackFermentationView(BaseView, Navigable):
     def __init__(self):
         super().__init__(None)
         self._time_update_task: Optional[asyncio.Task] = None

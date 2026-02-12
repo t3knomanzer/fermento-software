@@ -1,8 +1,5 @@
 from typing import Any, Optional
-from app.framework.observer import Observable, Observer
 from app.services import log
-from app.viewmodels.base import BaseViewmodel
-from app.views.base import BaseView
 
 logger = log.LogServiceManager.get_logger(name=__name__)
 

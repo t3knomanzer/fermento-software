@@ -5,16 +5,11 @@ from app.services import log
 import config
 from drivers.scd4x import SCD4X
 from machine import Pin, I2C
-from app.framework.pubsub import Publisher
-
 
 logger = log.LogServiceManager.get_logger(name=__name__)
 
 
 class CO2Sensor(BaseSensor):
-    TOPIC_ROOT = "co2_sensor"
-    TOPIC_CO2 = f"{TOPIC_ROOT}/co2"
-
     def __init__(self) -> None:
         super().__init__()
         logger.info("Initializing CO2 sensor...")
@@ -22,6 +17,7 @@ class CO2Sensor(BaseSensor):
         self._i2c: Optional[I2C] = None
         self._co2: int = 0
         self._capture_task: Optional[asyncio.Task] = None
+        self._value_changed_handlers: list[Callable[[int], None]] = []
 
         self._setup_i2c()
         self._setup_sensor()
@@ -34,7 +30,14 @@ class CO2Sensor(BaseSensor):
     def co2(self, value: int):
         if self._co2 != value:
             self._co2 = value
-            Publisher.publish(value, topic=self.TOPIC_CO2)
+            self._notify_value_changed()
+
+    def add_value_changed_handler(self, handler: Callable[[int], None]) -> None:
+        self._value_changed_handlers.append(handler)
+
+    def _notify_value_changed(self) -> None:
+        for handler in self._value_changed_handlers:
+            handler(self._co2)
 
     def _setup_i2c(self) -> None:
         self._i2c = I2C(0, sda=Pin(5), scl=Pin(6))

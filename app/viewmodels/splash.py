@@ -1,4 +1,3 @@
-from app.framework.observer import Observable
 from app.services import log
 from app.viewmodels.base import BaseViewmodel
 

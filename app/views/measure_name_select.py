@@ -1,7 +1,6 @@
 import config
-from app.framework.observer import Observable, Observer
 from app.services import log
-from app.services.navigation import NavigationService
+from app.services.navigation import Navigable, NavigationService
 from app.views.base import BaseView
 from typing import Any
 
@@ -15,7 +14,7 @@ from lib.gui.widgets.label import Label
 logger = log.LogServiceManager.get_logger(name=__name__)
 
 
-class MeasureNameSelectView(BaseView):
+class MeasureNameSelectView(BaseView, Navigable):
     def __init__(self):
         super().__init__(None)
 

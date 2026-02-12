@@ -21,7 +21,7 @@ class TrackFeedingSelectViewmodel(BaseViewmodel):
         super().__init__()
         self._app_state_service: AppStateService = ContainerService.get_instance(AppStateService)
         self._mqtt_service: MqttService = ContainerService.get_instance(MqttService)
-        self._mqtt_service.add_message_handler(self.on_mqtt_message_received)
+        self._mqtt_service.add_message_received_handler(self.on_mqtt_message_received)
 
         self._choices: dict[str, FeedingEventSchema] = {}
 

@@ -1,5 +1,4 @@
-from typing import Any, Optional
-from app.framework.pubsub import Publisher
+from typing import Optional
 from app.services import log
 from app.services.container import ContainerService
 from app.services.state import AppStateService
@@ -13,9 +12,6 @@ logger = log.LogServiceManager.get_logger(name=__name__)
 
 
 class MeasureNameSelectViewmodel(BaseViewmodel):
-    TOPIC_ROOT = "measure_name_select"
-    TOPIC_CHOICE_SELECTED = f"{TOPIC_ROOT}/choice_selected"
-
     def __init__(self):
         super().__init__()
         self._choices: set[str] = set()

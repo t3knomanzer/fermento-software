@@ -1,5 +1,3 @@
-from typing import Any, Optional
-from app.framework.pubsub import Publisher, Subscriber
 from app.services.timer import TimerService
 from lib.fermento_embedded_schemas import JarSchema
 from app.sensors.distance import DistanceSensor
@@ -8,24 +6,23 @@ from app.services.container import ContainerService
 from app.services.mqtt import MqttService
 from app.services.state import AppStateService
 from app.viewmodels.base import BaseViewmodel
-from app.framework.observer import Observer
-from app.viewmodels.measure_name_select import MeasureNameSelectViewmodel
 
 logger = log.LogServiceManager.get_logger(name=__name__)
 
 
-class MeasureDistanceViewmodel(BaseViewmodel, Subscriber):
+class MeasureDistanceViewmodel(BaseViewmodel):
     def __init__(self):
         super().__init__()
-        Publisher.subscribe(self, topic=DistanceSensor.TOPIC_DISTANCE)
-        Publisher.subscribe(self, topic=AppStateService.TOPIC_SELECTED_JAR_NAME)
-
         self._name: str = ""
         self._distance: int = 0
         self._distance_sensor: DistanceSensor = ContainerService.get_instance(DistanceSensor)
         self._app_state_service: AppStateService = ContainerService.get_instance(AppStateService)
         self._mqtt_service: MqttService = ContainerService.get_instance(MqttService)
         self._timer_service: TimerService = ContainerService.get_instance(TimerService)
+
+        self._distance_sensor.add_value_changed_handler(self._on_distance_changed)
+        self._app_state_service.add_selected_jar_name_handler(self._on_selected_jar_name_changed)
+        self._timer_service.add_tick_handler(self._on_timer_tick)
 
     @property
     def name(self) -> str:
@@ -57,7 +54,6 @@ class MeasureDistanceViewmodel(BaseViewmodel, Subscriber):
         if state == "active":
             self._distance_sensor.start()
             self._timer_service.start_timer("measure_distance", 1, True)
-            Publisher.subscribe(self, topic=f"{TimerService.TOPIC_TICK}/measure_distance")
 
         elif state == "inactive":
             self._timer_service.stop_timer("measure_distance")
@@ -68,12 +64,13 @@ class MeasureDistanceViewmodel(BaseViewmodel, Subscriber):
             self._distance_sensor.stop()
             self.save_measurement()
 
-    def on_publisher_message_received(self, message: Any, topic: str):
-        if topic == DistanceSensor.TOPIC_DISTANCE:
-            self.distance = message
+    def _on_distance_changed(self, distance: int) -> None:
+        self.distance = distance
 
-        elif topic == AppStateService.TOPIC_SELECTED_JAR_NAME:
-            self.name = message
+    def _on_selected_jar_name_changed(self, name: str) -> None:
+        self.name = name
 
-        elif topic == f"{TimerService.TOPIC_TICK}/measure_distance":
+    def _on_timer_tick(self, timer_name: str) -> None:
+        if timer_name == "measure_distance":
+            logger.debug("Measure distance timer tick - reading distance")
             self._distance_sensor.read()

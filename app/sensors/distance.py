@@ -7,16 +7,12 @@ from app.utils.decorators import singleton
 import config
 from drivers.vl53l4cd import VL53L4CD
 from machine import Pin, I2C
-from app.framework.pubsub import Publisher
 
 
 logger = log.LogServiceManager.get_logger(name=__name__)
 
 
 class DistanceSensor(BaseSensor):
-    TOPIC_ROOT = "distance_sensor"
-    TOPIC_DISTANCE = f"{TOPIC_ROOT}/distance"
-
     TIMING_HIGH_SPEED = 16
     TIMING_BALANCED = 33
     TIMING_HIGH_QUALITY = 200
@@ -29,6 +25,7 @@ class DistanceSensor(BaseSensor):
         self._distance: int = 0
         self._capture_task: Optional[asyncio.Task] = None
         self._i2c: Optional[I2C] = None
+        self._value_changed_handlers: list[Callable[[int], None]] = []
 
         self._setup_i2c()
         self._setup_sensor()
@@ -52,7 +49,14 @@ class DistanceSensor(BaseSensor):
     def distance(self, value: int):
         if self._distance != value:
             self._distance = value
-            Publisher.publish(value, topic=DistanceSensor.TOPIC_DISTANCE)
+            self._notify_value_changed()
+
+    def add_value_changed_handler(self, handler: Callable[[int], None]) -> None:
+        self._value_changed_handlers.append(handler)
+
+    def _notify_value_changed(self) -> None:
+        for handler in self._value_changed_handlers:
+            handler(self._distance)
 
     def _setup_i2c(self) -> None:
         self._i2c = I2C(0, sda=Pin(5), scl=Pin(6))

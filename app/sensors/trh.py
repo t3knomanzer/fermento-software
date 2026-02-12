@@ -5,16 +5,11 @@ from app.services import log
 import config
 from drivers.sht4x import SHT4x, Mode
 from machine import Pin, I2C
-from app.framework.pubsub import Publisher
-
 
 logger = log.LogServiceManager.get_logger(name=__name__)
 
 
 class TRHSensor(BaseSensor):
-    TOPIC_ROOT = "trh_sensor"
-    TOPIC_TRH = f"{TOPIC_ROOT}/trh"
-
     def __init__(self) -> None:
         super().__init__()
         logger.info("Initializing TRH sensor...")
@@ -22,19 +17,27 @@ class TRHSensor(BaseSensor):
         self._i2c: Optional[I2C] = None
         self._capture_task: Optional[asyncio.Task] = None
         self._trh: dict[str, Any] = {"t": 0.0, "rh": 0.0}
+        self._value_changed_handlers: list[Callable[[dict[str, float]], None]] = []
 
         self._setup_i2c()
         self._setup_sensor()
 
     @property
-    def trh(self) -> dict[str, Any]:
+    def trh(self) -> dict[str, float]:
         return self._trh
 
     @trh.setter
-    def trh(self, value: dict[str, Any]):
+    def trh(self, value: dict[str, float]):
         if self._trh != value:
             self._trh = value
-            Publisher.publish(value, topic=self.TOPIC_TRH)
+            self._notify_value_changed()
+
+    def add_value_changed_handler(self, handler: Callable[[dict[str, float]], None]) -> None:
+        self._value_changed_handlers.append(handler)
+
+    def _notify_value_changed(self) -> None:
+        for handler in self._value_changed_handlers:
+            handler(self._trh)
 
     def _setup_i2c(self) -> None:
         self._i2c = I2C(0, sda=Pin(5), scl=Pin(6))

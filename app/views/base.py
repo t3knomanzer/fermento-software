@@ -20,12 +20,6 @@ class BaseView(Screen):
     def bind_viewmodel(self, viewmodel: "BaseViewmodel") -> None:
         self._viewmodel = viewmodel
 
-    def on_navigated_from(self):
-        pass
-
-    def on_navigated_to(self, **kwargs):
-        pass
-
     def on_viewmodel_value_changed(self, **kwargs):
         pass
 
