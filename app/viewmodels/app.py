@@ -156,7 +156,7 @@ class ApplicationViewmodel(BaseViewmodel):
             self._mqtt_service = cast(MqttService, ContainerService.get_instance(MqttService))
             self._mqtt_service.connect()
             # Subscribe to all Fermento topics
-            self._mqtt_service.subscribe_topic("fermento/#")
+            self._mqtt_service.subscribe_topic("fermento/feeding_events/receive")
         except OSError:
             logger.critical(f"Error connecting to MQTT broker.")
             await self._set_splash_message_async("Service error!")
