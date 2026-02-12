@@ -1,7 +1,9 @@
 import asyncio
 from typing import Any, Callable, Optional
 from app.sensors.base import BaseSensor
+from app.sensors.i2c_bus import I2CBus
 from app.services import log
+from app.services.container import ContainerService
 import config
 from drivers.sht4x import SHT4x, Mode
 from machine import Pin, I2C
@@ -40,12 +42,14 @@ class TRHSensor(BaseSensor):
             handler(self._trh)
 
     def _setup_i2c(self) -> None:
-        self._i2c = I2C(0, sda=Pin(5), scl=Pin(6))
+        self._i2c_bus = ContainerService.get_instance(I2CBus)
+        if not self._i2c_bus:
+            raise Exception("I2C bus not found in container.")
 
     def _setup_sensor(self, retries: int = 3) -> None:
         logger.info("Creating TRH sensor...")
         try:
-            self._sensor = SHT4x(self._i2c)
+            self._sensor = SHT4x(self._i2c_bus.bus)
             self._sensor.mode = Mode.NOHEAT_HIGHPRECISION  # type: ignore
         except Exception as e:
             logger.error(f"Couldn't create TRH sensor: {e}")

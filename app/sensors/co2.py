@@ -1,7 +1,9 @@
 import asyncio
 from typing import Any, Callable, Optional
 from app.sensors.base import BaseSensor
+from app.sensors.i2c_bus import I2CBus
 from app.services import log
+from app.services.container import ContainerService
 import config
 from drivers.scd4x import SCD4X
 from machine import Pin, I2C
@@ -40,12 +42,14 @@ class CO2Sensor(BaseSensor):
             handler(self._co2)
 
     def _setup_i2c(self) -> None:
-        self._i2c = I2C(0, sda=Pin(5), scl=Pin(6))
+        self._i2c_bus = ContainerService.get_instance(I2CBus)
+        if not self._i2c_bus:
+            raise Exception("I2C bus not found in container.")
 
     def _setup_sensor(self, retries: int = 3) -> None:
         logger.info("Creating CO2 sensor...")
         try:
-            self._sensor = SCD4X(self._i2c)
+            self._sensor = SCD4X(self._i2c_bus.bus)
         except Exception as e:
             logger.error(f"Couldn't create CO2 sensor: {e}")
 

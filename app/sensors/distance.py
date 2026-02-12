@@ -2,7 +2,9 @@ import asyncio
 import sys
 from typing import Any, Callable, Optional
 from app.sensors.base import BaseSensor
+from app.sensors.i2c_bus import I2CBus
 from app.services import log
+from app.services.container import ContainerService
 from app.utils.decorators import singleton
 import config
 from drivers.vl53l4cd import VL53L4CD
@@ -59,12 +61,14 @@ class DistanceSensor(BaseSensor):
             handler(self._distance)
 
     def _setup_i2c(self) -> None:
-        self._i2c = I2C(0, sda=Pin(5), scl=Pin(6))
+        self._i2c_bus = ContainerService.get_instance(I2CBus)
+        if not self._i2c_bus:
+            raise Exception("I2C bus not found in container.")
 
     def _setup_sensor(self, retries: int = 3) -> None:
         logger.info("Creating distance sensor...")
         try:
-            self._sensor = VL53L4CD(self._i2c)
+            self._sensor = VL53L4CD(self._i2c_bus.bus)
             self.timing_budget = self._timing_budget
         except Exception as e:
             logger.error(f"Couldn't create distance sensor. {e}")

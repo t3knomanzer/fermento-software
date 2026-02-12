@@ -2,6 +2,7 @@ import asyncio
 from typing import Optional, cast
 from app.sensors.co2 import CO2Sensor
 from app.sensors.distance import DistanceSensor
+from app.sensors.i2c_bus import I2CBus
 from app.sensors.trh import TRHSensor
 from app.services import log
 from app.services.container import ContainerService
@@ -27,6 +28,7 @@ from app.views.splash import SplashView
 from app.views.track_feeding_select import TrackFeedingSelectView
 from app.views.track_fermentation import TrackFermentationView
 import config
+from lib.gui.core.ugui import Screen
 
 logger = log.LogServiceManager.get_logger(name=__name__)
 
@@ -37,9 +39,11 @@ class ApplicationViewmodel(BaseViewmodel):
         self._net_service: Optional[NetworkService] = None
         self._mqtt_service: Optional[MqttService] = None
         self._distance_sensor: Optional[DistanceSensor] = None
+        self._i2c_bus: Optional[I2CBus] = None
 
     def start(self) -> None:
         self._register_types()
+        self._init_sensors()
         self._bind_views_viewmodels()
         asyncio.create_task(self._init_services_async())
         NavigationService.navigate_to(SplashView)
@@ -77,6 +81,7 @@ class ApplicationViewmodel(BaseViewmodel):
         ContainerService.register_type(NetworkService)
         ContainerService.register_type(MqttService)
         ContainerService.register_type(TimerService)
+        ContainerService.register_type(I2CBus)
 
         # Sensors
         ContainerService.register_type(DistanceSensor)
@@ -115,6 +120,10 @@ class ApplicationViewmodel(BaseViewmodel):
         await self._set_splash_message_async("Welcome!")
         await asyncio.sleep(0.5)
         NavigationService.navigate_to(MenuView)
+
+    def _init_sensors(self) -> None:
+        self._i2c_bus = ContainerService.get_instance(I2CBus)
+        self._i2c_bus.start(id=1, sda_pin=config.I2C_1_SDA_PIN, scl_pin=config.I2C_1_SCL_PIN)
 
     async def _init_wifi_async(self) -> bool:
         logger.info("Initializing WiFi...")
