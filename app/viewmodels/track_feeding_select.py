@@ -7,7 +7,7 @@ from app.services.state import AppStateService
 from app.viewmodels.base import BaseViewmodel
 from typing import Optional
 
-import time
+from app.utils import time
 
 
 logger = log.LogServiceManager.get_logger(name=__name__)
@@ -21,7 +21,6 @@ class TrackFeedingSelectViewmodel(BaseViewmodel):
         super().__init__()
         self._app_state_service: AppStateService = ContainerService.get_instance(AppStateService)
         self._mqtt_service: MqttService = ContainerService.get_instance(MqttService)
-        self._mqtt_service.subscribe_topic(topic="fermento/feeding_events/receive", qos=1)
         self._mqtt_service.add_message_handler(self.on_mqtt_message_received)
 
         self._choices: dict[str, FeedingEventSchema] = {}
@@ -57,7 +56,7 @@ class TrackFeedingSelectViewmodel(BaseViewmodel):
             )  # Sort by timestamp descending
             for item in message[:2]:  # Limit to first 2 events
                 event: FeedingEventSchema = FeedingEventSchema.from_dict(item)  # type: ignore
-                label = time.strftime("%d/%m/%Y %H:%M", event.timestamp)
+                label = time.isoformat_to_shortform(event.timestamp)
                 self._choices[f"{label}"] = event  # Store event with timestamp as key
 
             self._notify_value_changed(choices=self._choices.keys())

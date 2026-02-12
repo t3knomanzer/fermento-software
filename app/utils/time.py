@@ -1,11 +1,11 @@
-import time
+from time import localtime, time
 from ntptime import settime
 
 
 def setup_ntp_time():
     try:
         settime()
-        print(f"Ntp time set. Current time {now_isoformat()} - {time.time()}")
+        print(f"Ntp time set. Current time {now_isoformat()} - {time()}")
         return True
     except Exception as e:
         print(f"Error setting ntp time. {e}")
@@ -13,13 +13,24 @@ def setup_ntp_time():
 
 
 def now():
-    return time.localtime()
+    return localtime()
 
 
 def now_isoformat():
-    return time.strftime("%Y-%m-%dT%H:%M:%S%z", now())
+    t = now()
+    return "{:04d}-{:02d}-{:02d}T{:02d}:{:02d}:{:02d}Z".format(t[0], t[1], t[2], t[3], t[4], t[5])
+
+
+def now_shortform():
+    t = now()
+    return "{:04d}-{:02d}-{:02d} {:02d}:{:02d}".format(t[0], t[1], t[2], t[3], t[4])
+
+
+def isoformat_to_shortform(iso_str):
+    result = iso_str.replace("T", " ")[:16]
+    return result
 
 
 def ntp_is_set():
     # 5 minutes
-    return time.time() > 300
+    return time() > 3000
