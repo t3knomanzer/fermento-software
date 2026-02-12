@@ -1,6 +1,7 @@
-from datetime import datetime
+from time import struct_time
 from .base import BaseSchema
-
+from app.utils.time import time as t
+import time
 
 class FeedingEventSchema(BaseSchema):
     """
@@ -10,13 +11,12 @@ class FeedingEventSchema(BaseSchema):
     id: int
     starter: dict
     jar: dict
-    timestamp: datetime
+    timestamp: struct_time
 
     @classmethod
     def from_dict(cls, data: dict) -> "FeedingEventSchema":
         if "timestamp" in data and isinstance(data["timestamp"], str):
-            timestamp = data["timestamp"].replace("Z", "+00:00")
-            data["timestamp"] = datetime.fromisoformat(timestamp)
+            data["timestamp"] = time.strptime(data["timestamp"], "%Y-%m-%dT%H:%M:%S%")
         return super().from_dict(data)  # type: ignore
 
     @classmethod

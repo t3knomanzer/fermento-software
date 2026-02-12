@@ -7,6 +7,8 @@ from app.services.state import AppStateService
 from app.viewmodels.base import BaseViewmodel
 from typing import Optional
 
+import time
+
 
 logger = log.LogServiceManager.get_logger(name=__name__)
 
@@ -55,8 +57,7 @@ class TrackFeedingSelectViewmodel(BaseViewmodel):
             )  # Sort by timestamp descending
             for item in message[:2]:  # Limit to first 2 events
                 event: FeedingEventSchema = FeedingEventSchema.from_dict(item)  # type: ignore
-                ts = event.timestamp
-                label = f"{ts.day}/{ts.month}/{ts.year} {ts.hour}:{ts.minute}"
+                label = time.strftime("%d/%m/%Y %H:%M", event.timestamp)
                 self._choices[f"{label}"] = event  # Store event with timestamp as key
 
             self._notify_value_changed(choices=self._choices.keys())

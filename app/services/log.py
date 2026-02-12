@@ -1,6 +1,6 @@
 from typing import Optional
 from app.utils.pathing import file_exists
-from app.utils.time import now_str, ntp_is_set
+from app.utils.time import now_isoformat, ntp_is_set
 
 DEBUG = 0
 INFO = 10
@@ -51,9 +51,7 @@ class LogServiceManager:
         cls._filename = cls._generate_filename(root_name, extension, max_files)
 
     @classmethod
-    def initialize(
-        cls, filename: str = "app", level: int = INFO, max_files: int = 3
-    ) -> None:
+    def initialize(cls, filename: str = "app", level: int = INFO, max_files: int = 3) -> None:
         cls._set_filename(root_name=filename, max_files=max_files)
         cls._set_level(level)
 
@@ -77,7 +75,7 @@ class LogService:
         self._filename = filename
 
     def _build_message(self, message: str, level: int, name: str | None = None) -> str:
-        time = f"[{now_str()}]" if ntp_is_set() else ""
+        time = f"[{now_isoformat()}]" if ntp_is_set() else ""
         return f"{time}[{LEVEL_NAMES[level]}][{name or self._name}] {message}"
 
     def _log_console(self, message: str, level: int, name: str | None = None):
@@ -90,9 +88,7 @@ class LogService:
             with open(self._filename, "a+") as fh:
                 fh.write(msg + "\n")
         except Exception as e:
-            self._log_console(
-                f"Error writing log to file: {self._filename}, {e}", ERROR
-            )
+            self._log_console(f"Error writing log to file: {self._filename}, {e}", ERROR)
 
     def log(self, message: str, level: int, name: Optional[str] = None):
         if level >= self._level:

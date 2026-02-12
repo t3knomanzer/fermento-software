@@ -1,9 +1,8 @@
 import asyncio
 
-# from datetime import datetime
 import json
 import random
-import time
+from app.utils import time
 from app.services import log
 import config
 import machine
@@ -77,8 +76,7 @@ class MqttService:
                 {
                     "device_id": self._device_id,
                     "message_id": str(random.randint(0, 1000000)),
-                    # "timestamp": datetime.now().isoformat(),
-                    "timestamp": int(time.time()),
+                    "timestamp": time.now_isoformat(),
                 }
             )
 
