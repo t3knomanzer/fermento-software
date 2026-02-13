@@ -1,5 +1,5 @@
 from typing import Any, Optional
-from app.services import log
+from app.services.log import log
 
 logger = log.LogServiceManager.get_logger(name=__name__)
 

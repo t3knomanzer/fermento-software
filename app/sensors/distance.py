@@ -3,7 +3,7 @@ import sys
 from typing import Any, Callable, Optional
 from app.sensors.base import BaseSensor
 from app.sensors.i2c_bus import I2CBus
-from app.services import log
+from app.services.log import log
 from app.services.container import ContainerService
 from app.utils.decorators import singleton
 import config

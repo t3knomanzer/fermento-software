@@ -1,5 +1,5 @@
 from typing import Callable, Optional
-from app.services import log
+from app.services.log import log
 from lib.fermento_embedded_schemas.feeding_event import FeedingEventSchema
 
 logger = log.LogServiceManager.get_logger(name=__name__)

@@ -4,7 +4,7 @@ from lib.fermento_embedded_schemas.feeding_sample import FeedingSampleSchema
 from app.sensors.co2 import CO2Sensor
 from app.sensors.distance import DistanceSensor
 from app.sensors.trh import TRHSensor
-from app.services import log
+from app.services.log import log
 from app.services.container import ContainerService
 from app.services.mqtt import MqttService
 from app.services.state import AppStateService

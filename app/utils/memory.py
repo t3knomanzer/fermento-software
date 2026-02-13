@@ -1,5 +1,5 @@
 import gc
-from app.services.log import LogServiceManager
+from app.services.log.log import LogServiceManager
 
 logger = LogServiceManager.get_logger(name=__name__)
 

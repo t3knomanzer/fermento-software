@@ -4,7 +4,7 @@
 # Version: 2.1.0 (UI refactor: inline CSS from file)
 # Description: WiFi Manager for ESP8266 and ESP32 using MicroPython.
 
-from app.services.log import LogServiceManager
+from app.services.log.log import LogServiceManager
 import machine
 import network
 import socket

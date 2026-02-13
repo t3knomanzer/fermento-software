@@ -3,7 +3,7 @@ import asyncio
 import json
 import random
 from app.utils import time
-from app.services import log
+from app.services.log import log
 import config
 import machine
 from app.utils.decorators import singleton

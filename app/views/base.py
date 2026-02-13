@@ -1,5 +1,5 @@
 from typing import TYPE_CHECKING, Any, Optional
-from app.services import log
+from app.services.log import log
 from lib.gui.core.ugui import Screen, Widget
 
 if TYPE_CHECKING:

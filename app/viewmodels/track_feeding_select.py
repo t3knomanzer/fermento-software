@@ -1,6 +1,6 @@
 import json
 from lib.fermento_embedded_schemas.feeding_event import FeedingEventSchema
-from app.services import log
+from app.services.log import log
 from app.services.container import ContainerService
 from app.services.mqtt import MqttService
 from app.services.state import AppStateService

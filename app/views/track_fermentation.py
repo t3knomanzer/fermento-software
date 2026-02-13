@@ -1,4 +1,4 @@
-from app.services import log
+from app.services.log import log
 from app.services.navigation import Navigable, NavigationService
 from app.views.base import BaseView
 

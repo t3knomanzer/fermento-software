@@ -1,6 +1,6 @@
 from app.sensors.i2c_bus import I2CBus
 from app.services.container import ContainerService
-from app.services.log import LogServiceManager
+from app.services.log.log import LogServiceManager
 import config
 
 logger = LogServiceManager.get_logger(name=__name__)

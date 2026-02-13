@@ -1,5 +1,5 @@
 import os
-from app.services import log
+from app.services.log import log
 from app.viewmodels.base import BaseViewmodel
 
 logger = log.LogServiceManager.get_logger(name=__name__)

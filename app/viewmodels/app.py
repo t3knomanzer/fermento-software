@@ -4,7 +4,7 @@ from app.sensors.co2 import CO2Sensor
 from app.sensors.distance import DistanceSensor
 from app.sensors.i2c_bus import I2CBus
 from app.sensors.trh import TRHSensor
-from app.services import log
+from app.services.log import log
 from app.services.container import ContainerService
 from app.services.mqtt import MqttService
 from app.services.navigation import NavigationService

@@ -3,11 +3,13 @@ import sys
 sys.path.insert(0, "lib/typing")
 
 import config
-from app.services import log
+from app.services.log.log import LogServiceManager
+from app.services.log.handlers.console import ConsoleHandler
 
 # Setup logging
-log.LogServiceManager.initialize(level=config.LOG_LEVEL, max_files=config.LOG_MAX_FILES)
-logger = log.LogServiceManager.get_logger(name=__name__)
+LogServiceManager.initialize(level=config.LOG_LEVEL)
+LogServiceManager.register_handler(ConsoleHandler())
+logger = LogServiceManager.get_logger(name=__name__)
 
 import hardware_setup
 from app.viewmodels.app import ApplicationViewmodel

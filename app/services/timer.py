@@ -1,7 +1,7 @@
 import asyncio
 from typing import Callable
 
-from app.services import log
+from app.services.log import log
 
 logger = log.LogServiceManager.get_logger(name=__name__)
 

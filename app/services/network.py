@@ -1,4 +1,4 @@
-from app.services.log import LogServiceManager
+from app.services.log.log import LogServiceManager
 from app.services.wifi import WifiService
 
 import config

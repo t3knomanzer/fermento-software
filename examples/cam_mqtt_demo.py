@@ -5,7 +5,7 @@ import time
 
 sys.path.insert(0, "./lib/typing")
 
-from app.services import log
+from app.services.log import log
 
 log.LogServiceManager.initialize(level=0, max_files=1)
 

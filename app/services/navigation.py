@@ -1,5 +1,5 @@
 from typing import Any, Optional
-from app.services import log
+from app.services.log import log
 from app.services.container import ContainerService
 from app.views.base import BaseView
 from lib.gui.core.ugui import Screen, ssd

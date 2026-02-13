@@ -1,5 +1,5 @@
 from typing import Optional
-from app.services import log
+from app.services.log import log
 from app.services.container import ContainerService
 from app.services.state import AppStateService
 from app.viewmodels.base import BaseViewmodel

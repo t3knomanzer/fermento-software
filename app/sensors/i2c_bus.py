@@ -1,5 +1,5 @@
 from typing import Optional
-from app.services.log import LogServiceManager
+from app.services.log.log import LogServiceManager
 from machine import Pin, I2C
 
 logger = LogServiceManager.get_logger(name=__name__)
