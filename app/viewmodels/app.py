@@ -1,5 +1,6 @@
 import asyncio
 from typing import Optional, cast
+from app.sensors.camera import CameraSensor
 from app.sensors.co2 import CO2Sensor
 from app.sensors.distance import DistanceSensor
 from app.sensors.i2c_bus import I2CBus
@@ -87,6 +88,7 @@ class ApplicationViewmodel(BaseViewmodel):
         ContainerService.register_type(DistanceSensor)
         ContainerService.register_type(TRHSensor)
         ContainerService.register_type(CO2Sensor)
+        ContainerService.register_type(CameraSensor)
 
     def _bind_views_viewmodels(self) -> None:
         logger.debug("Binding views and viewmodels...")
@@ -123,7 +125,9 @@ class ApplicationViewmodel(BaseViewmodel):
 
     def _init_sensors(self) -> None:
         self._i2c_bus = ContainerService.get_instance(I2CBus)
-        self._i2c_bus.start(id=1, sda_pin=config.I2C_1_SDA_PIN, scl_pin=config.I2C_1_SCL_PIN)
+        self._i2c_bus.start(
+            id=config.I2C_0_ID, sda_pin=config.I2C_0_SDA_PIN, scl_pin=config.I2C_0_SCL_PIN
+        )
 
     async def _init_wifi_async(self) -> bool:
         logger.info("Initializing WiFi...")

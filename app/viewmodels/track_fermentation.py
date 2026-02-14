@@ -1,4 +1,5 @@
 from typing import Any, Optional
+from app.sensors.camera import CameraSensor
 from lib.fermento_embedded_schemas.feeding_event import FeedingEventSchema
 from lib.fermento_embedded_schemas.feeding_sample import FeedingSampleSchema
 from app.sensors.co2 import CO2Sensor
@@ -20,6 +21,7 @@ class TrackFermentationViewmodel(BaseViewmodel):
         self._distance: int = 0
         self._trh: dict[str, Any] = {"t": 0.0, "rh": 0.0}
         self._co2: int = 0
+        self._frame: Optional[bytes] = None
         self._feeding_event: Optional[FeedingEventSchema] = None
         self._jar_name: str = ""
         self._starter_name: str = ""
@@ -27,6 +29,7 @@ class TrackFermentationViewmodel(BaseViewmodel):
         self._distance_sensor: DistanceSensor = ContainerService.get_instance(DistanceSensor)
         self._trh_sensor: TRHSensor = ContainerService.get_instance(TRHSensor)
         self._co2_sensor: CO2Sensor = ContainerService.get_instance(CO2Sensor)
+        self._camera: CameraSensor = ContainerService.get_instance(CameraSensor)
         self._app_state_service: AppStateService = ContainerService.get_instance(AppStateService)
         self._mqtt_service: MqttService = ContainerService.get_instance(MqttService)
         self._timer_service: TimerService = ContainerService.get_instance(TimerService)
@@ -34,6 +37,7 @@ class TrackFermentationViewmodel(BaseViewmodel):
         self._distance_sensor.add_value_changed_handler(self._on_distance_changed)
         self._trh_sensor.add_value_changed_handler(self._on_trh_changed)
         self._co2_sensor.add_value_changed_handler(self._on_co2_changed)
+        self._camera.add_value_changed_handler(self._on_camera_frame_changed)
         self._app_state_service.add_selected_feeding_event_handler(
             self._on_selected_feeding_event_changed
         )
@@ -97,17 +101,19 @@ class TrackFermentationViewmodel(BaseViewmodel):
             self._distance_sensor.start()
             self._trh_sensor.start()
             self._co2_sensor.start()
+            self._camera.start()
             self._timer_service.start_timer("preview", 1, True)
 
         elif state == "active_capture":
             self._timer_service.stop_timer("preview")
-            self._timer_service.start_timer("capture", 60, True)
+            self._timer_service.start_timer("capture", 5, True)
 
         elif state == "inactive":
             self._timer_service.stop_timer("capture")
             self._distance_sensor.stop()
             self._trh_sensor.stop()
             self._co2_sensor.stop()
+            self._camera.stop()
 
     def _on_distance_changed(self, distance: int) -> None:
         self.distance = distance
@@ -117,6 +123,9 @@ class TrackFermentationViewmodel(BaseViewmodel):
 
     def _on_co2_changed(self, co2: int) -> None:
         self.co2 = co2
+
+    def _on_camera_frame_changed(self, frame: Optional[bytes]) -> None:
+        self._frame = frame
 
     def _on_selected_feeding_event_changed(
         self, feeding_event: Optional[FeedingEventSchema]
@@ -137,10 +146,6 @@ class TrackFermentationViewmodel(BaseViewmodel):
             self._distance_sensor.read()
             self._trh_sensor.read()
             self._co2_sensor.read()
-            # Submit data to MQTT
-            logger.info(
-                f"Saving sample: Distance: {self._distance}, TRH: {self._trh}, CO2: {self._co2}"
-            )
             message = FeedingSampleSchema(
                 feeding_event_id=self._feeding_event.id if self._feeding_event else None,
                 temperature=self._trh.get("t", 0.0),
@@ -148,4 +153,11 @@ class TrackFermentationViewmodel(BaseViewmodel):
                 co2=self._co2,
                 distance=self._distance,
             ).to_dict()
+            logger.info(
+                f"Saving sample: Distance: {self._distance}, TRH: {self._trh}, CO2: {self._co2}"
+            )
             self._mqtt_service.publish(topic=f"feeding_samples/create", message=message, qos=0)
+
+            self._camera.read()
+            logger.info(f"Saving frame: size: {len(self._frame) if self._frame else 0} bytes")
+            self._mqtt_service.publish(topic=f"feeding_samples/frame", message=self._frame, qos=0)

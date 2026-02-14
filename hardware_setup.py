@@ -23,7 +23,7 @@ retries = 3
 while not ssd and retries > 0:
     try:
         gc.collect()
-        i2c = I2C(0, sda=Pin(config.I2C_0_SDA_PIN), scl=Pin(config.I2C_0_SCL_PIN))
+        i2c = I2C(config.I2C_0_ID, sda=Pin(config.I2C_0_SDA_PIN), scl=Pin(config.I2C_0_SCL_PIN))
         ssd = SSD(oled_width, oled_height, i2c)
     except Exception as e:
         logger.error(f"({retries}) Error creating SSD. {e}")
