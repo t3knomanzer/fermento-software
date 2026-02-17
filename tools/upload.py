@@ -14,8 +14,8 @@ EXCLUDE_DIRS = {
     "firmware",
     "dev",
     "demos",
-    # "drivers",
-    # "lib",
+    "drivers",
+    "lib",
 }
 
 INCLUDE_EXTENSIONS = {".mpy", ".css", ".xbm", ".dat"}
