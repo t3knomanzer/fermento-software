@@ -7,7 +7,8 @@ from app.services.log import log
 import config
 import machine
 from app.utils.decorators import singleton
-from lib.umqtt.simple import MQTTClient, hexlify
+from lib.umqtt.simple import hexlify
+from lib.umqtt.robust import MQTTClient
 import ubinascii
 
 logger = log.LogServiceManager.get_logger(name=__name__)
@@ -24,7 +25,7 @@ class MqttService:
         self._message_received_handlers = []
         self._topics = []
         self._is_connected = False
-        self._device_id = "aaa"
+        self._device_id = "123789XABC"
         self.client = MQTTClient(client_id=self._device_id, server=server, port=port)
         self.client.set_callback(self._on_message_received)
 

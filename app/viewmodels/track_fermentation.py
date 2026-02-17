@@ -106,7 +106,7 @@ class TrackFermentationViewmodel(BaseViewmodel):
 
         elif state == "active_capture":
             self._timer_service.stop_timer("preview")
-            self._timer_service.start_timer("capture", 5, True)
+            self._timer_service.start_timer("capture", 60, True)
 
         elif state == "inactive":
             self._timer_service.stop_timer("capture")
