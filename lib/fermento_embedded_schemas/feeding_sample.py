@@ -6,6 +6,7 @@ class FeedingSampleSchema(BaseSchema):
     Schema for telemetry data validation.
     """
 
+    bundle_id: int
     feeding_event_id: int
     temperature: float
     humidity: float
@@ -15,6 +16,7 @@ class FeedingSampleSchema(BaseSchema):
     @classmethod
     def _get_fields(cls) -> list[str]:
         return [
+            "bundle_id",
             "feeding_event_id",
             "temperature",
             "humidity",

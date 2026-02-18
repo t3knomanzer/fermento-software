@@ -2,6 +2,7 @@ from typing import Any, Optional
 from app.sensors.camera import CameraSensor
 from lib.fermento_embedded_schemas.feeding_event import FeedingEventSchema
 from lib.fermento_embedded_schemas.feeding_sample import FeedingSampleSchema
+from app.utils.time import now_iso, iso_to_int
 from app.sensors.co2 import CO2Sensor
 from app.sensors.distance import DistanceSensor
 from app.sensors.trh import TRHSensor
@@ -21,7 +22,7 @@ class TrackFermentationViewmodel(BaseViewmodel):
         self._distance: int = 0
         self._trh: dict[str, Any] = {"t": 0.0, "rh": 0.0}
         self._co2: int = 0
-        self._frame: Optional[bytes] = None
+        self._image: Optional[bytes] = None
         self._feeding_event: Optional[FeedingEventSchema] = None
         self._jar_name: str = ""
         self._starter_name: str = ""
@@ -125,7 +126,7 @@ class TrackFermentationViewmodel(BaseViewmodel):
         self.co2 = co2
 
     def _on_camera_frame_changed(self, frame: Optional[bytes]) -> None:
-        self._frame = frame
+        self._image = frame
 
     def _on_selected_feeding_event_changed(
         self, feeding_event: Optional[FeedingEventSchema]
@@ -143,10 +144,12 @@ class TrackFermentationViewmodel(BaseViewmodel):
             self._co2_sensor.read()
 
         elif timer_name == "capture":
+            bundle_id = iso_to_int(now_iso())
             self._distance_sensor.read()
             self._trh_sensor.read()
             self._co2_sensor.read()
             message = FeedingSampleSchema(
+                bundle_id=bundle_id,
                 feeding_event_id=self._feeding_event.id if self._feeding_event else None,
                 temperature=self._trh.get("t", 0.0),
                 humidity=self._trh.get("rh", 0.0),
@@ -159,5 +162,7 @@ class TrackFermentationViewmodel(BaseViewmodel):
             self._mqtt_service.publish(topic=f"feeding_samples/create", message=message, qos=0)
 
             self._camera.read()
-            logger.info(f"Saving frame: size: {len(self._frame) if self._frame else 0} bytes")
-            self._mqtt_service.publish(topic=f"feeding_samples/frame", message=self._frame, qos=0)
+            logger.info(f"Saving image: size: {len(self._image) if self._image else 0} bytes")
+            self._mqtt_service.publish(
+                topic=f"feeding_samples/image/{bundle_id}", message=self._image, qos=0
+            )

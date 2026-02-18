@@ -56,7 +56,7 @@ class TrackFeedingSelectViewmodel(BaseViewmodel):
             )  # Sort by timestamp descending
             for item in message[:2]:  # Limit to first 2 events
                 event: FeedingEventSchema = FeedingEventSchema.from_dict(item)  # type: ignore
-                label = time.isoformat_to_shortform(event.timestamp)
+                label = time.iso_to_shortform(event.timestamp)
                 self._choices[f"{label}"] = event  # Store event with timestamp as key
 
             self._notify_value_changed(choices=self._choices.keys())

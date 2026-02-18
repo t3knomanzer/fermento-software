@@ -51,3 +51,4 @@ diagram.json
 *.code-workspace
 *.log
 .tmp/
+*.mpy

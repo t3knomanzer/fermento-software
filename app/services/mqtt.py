@@ -81,7 +81,7 @@ class MqttService:
                 {
                     "device_id": self._device_id,
                     "message_id": str(random.randint(0, 1000000)),
-                    "timestamp": time.now_isoformat(),
+                    "timestamp": time.now_iso(),
                 }
             )
 

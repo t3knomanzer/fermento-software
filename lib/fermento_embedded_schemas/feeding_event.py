@@ -1,5 +1,5 @@
+from datetime import datetime
 from .base import BaseSchema
-import time
 
 
 class FeedingEventSchema(BaseSchema):
@@ -10,17 +10,8 @@ class FeedingEventSchema(BaseSchema):
     id: int
     starter: dict
     jar: dict
-    timestamp: str
-
-    @classmethod
-    def from_dict(cls, data: dict) -> "FeedingEventSchema":
-        return super().from_dict(data)  # type: ignore
+    timestamp: datetime
 
     @classmethod
     def _get_fields(cls) -> list[str]:
-        return [
-            "id",
-            "starter",
-            "jar",
-            "timestamp",
-        ]
+        return ["id", "starter", "jar", "timestamp"]
